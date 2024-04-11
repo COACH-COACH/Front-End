@@ -12,7 +12,10 @@
         </nav>
         <div class="user-actions">
           <router-link to="/main/mypage">마이페이지</router-link>
-          <router-link to="/logout" class="logout-link">로그아웃</router-link>
+          <router-link to="/main/signup">회원가입</router-link>
+          <router-link to="/main/signin">로그인</router-link>
+          <router-link to="/main/test">토큰저장되나</router-link>
+          <!-- <router-link to="/logout" class="logout-link">로그아웃</router-link> -->
         </div>
       </div>
     </div>

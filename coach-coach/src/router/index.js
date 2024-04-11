@@ -3,6 +3,9 @@ import BaseView from '@/views/BaseView.vue'
 import ProductView from '@/views/ProductView.vue'
 import GoalView from '@/views/GoalView.vue'
 import MypageView from '@/views/MyPageView.vue'
+import SignUpView from '@/views/SignUpView.vue'
+import SignInView from '@/views/SignInView.vue'
+import TokenStoringTestView from '@/views/TokenStoringTestView.vue'
 
 const routes = [
   {
@@ -24,6 +27,21 @@ const routes = [
     path: '/main/mypage',
     name: 'mypage',
     component: MypageView
+  },
+  {
+    path: '/main/signup',
+    name: 'signup',
+    component: SignUpView
+  },
+  {
+    path: '/main/signin',
+    name: 'signin',
+    component: SignInView
+  },
+  {
+    path: '/main/test',
+    name: 'admin',
+    component: TokenStoringTestView
   },
 ]
 
