@@ -25,7 +25,7 @@ export default createStore({
       sessionStorage.removeItem('token'); // 로컬 스토리지에서 토큰 제거
     },
     restoreToken({ commit }) {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (token) {
         commit('setToken', token);
       }
@@ -34,7 +34,5 @@ export default createStore({
   getters: {
     isLoggedIn: state => state.isAuthenticated,
     getToken: state => state.token
-  },
-  modules: {
   }
 });
