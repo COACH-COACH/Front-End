@@ -44,8 +44,13 @@ export default {
 
       try {
         const response = await axios.post(url, formData);
+        console.log("asdfasdf")
+        // console.log(response.data.(authorization));
 
-        const token = response.headers.authorization; // 헤더에서 JWT 토큰 가져오기
+        const token = response.headers.get("Authorization"); // 헤더에서 JWT 토큰 가져오기
+        // const t_token = response.headers['authorization'];
+        // const token = t_token.split(' ')[1]; 
+        console.log(token);
         this.$store.dispatch('login', { token }); // Vuex store에 토큰 저장, login 액션 실행
 
         // 토큰 저장 등의 추가 작업 수행 가능
