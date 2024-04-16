@@ -44,7 +44,7 @@ export default {
 
       try {
         const response = await axios.post(url, formData);
-        console.log("asdfasdf")
+        // console.log("asdfasdf")
         // console.log(response.data.(authorization));
 
         const token = response.headers.get("Authorization"); // 헤더에서 JWT 토큰 가져오기
