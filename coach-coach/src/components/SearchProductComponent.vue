@@ -1,132 +1,168 @@
 <template>
+  <div>
+    <h3>예적금 상품 검색</h3>
     <div>
-      <h1>상품 검색</h1>
       <div>
-        <label for="productType">상품 종류:</label>
-        <select v-model="filters.productType" @change="onProductTypeChange">
-          <option value="">전체</option>
-          <option value="DEPOSIT">예금</option>
-          <option value="SAVINGS">적금</option>
-        </select>
-  
-        <div v-if="filters.productType === 'SAVINGS'">
-          <label for="depositCycle">납입 방법:</label>
-          <select v-model="filters.depositCycle">
-            <option value="">전체</option>
-            <option value="FLEXIBLE">자유적립식</option>
-            <option value="FIXED">정액적립식</option>
-          </select>
-        </div>
+        종류: <button v-for="type in productTypes" :key="type.value" @click="setFilter('productType', type.value)" :class="{ 'btn-active': filters.productType === type.value }">{{ type.text }}</button>
       </div>
-  
-      <div>
-        <label for="maturity">가입 기간:</label>
-        <select v-model="filters.maturity">
-          <option value="">전체</option>
-          <option value="1">1개월</option>
-          <option value="3">3개월</option>
-          <option value="6">6개월</option>
-          <option value="12">1년</option>
-          <option value="24">2년</option>
-          <option value="36">3년 이상</option>
-        </select>
-      </div>
-  
-      <div>
-        <label for="keyword">검색 키워드:</label>
-        <input type="text" v-model="filters.keyword">
-      </div>
-  
-      <button @click="searchProducts(pagination.currentPage)">조회</button>
-  
-      <div v-if="products && products.length">
-        <ul>
-          <li v-for="product in products" :key="product.id">
-            {{ product.productName }} ({{ product.productType }} - {{ product.depositCycle }}) - {{ product.maxInterestRate }}% - {{ product.productDetail }}
-          </li>
-        </ul>
-      </div>
-      <div v-else>
-          상품 정보가 없습니다.
-      </div>
-      <div>
-        <button @click="changePage(pagination.currentPage - 1)" :disabled="pagination.currentPage <= 0">이전</button>
-        <button @click="changePage(pagination.currentPage + 1)" :disabled="pagination.currentPage >= pagination.totalPages - 1">다음</button>
-        <span>Page {{ pagination.currentPage + 1 }} of {{ pagination.totalPages }}</span>
+
+      <div v-if="filters.productType === 'SAVINGS'">
+        납입 주기: <button v-for="cycle in depositCycles" :key="cycle.value" @click="setFilter('depositCycle', cycle.value)" :class="{ 'btn-active': filters.depositCycle === cycle.value }">{{ cycle.text }}</button>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import { ref } from 'vue';
-  
-  export default {
-    name: 'SearchProductComponent',
-    setup() {
-      const pagination = ref({
-        totalElements: 0,
-        totalPages: 0,
-        currentPage: 0,
-        pageSize: 10
-      });
-      
-      const filters = ref({
-        productType: '',
-        maturity: '',
-        depositCycle: '',
-        keyword: ''
-      });
-  
-      const products = ref([]);
-  
-      const onProductTypeChange = () => {
-        if (filters.value.productType !== 'SAVINGS') {
-          filters.value.depositCycle = '';
-        }
+
+    <div>
+      가입기간: <button v-for="period in maturityOptions" :key="period.value" @click="setFilter('maturity', period.value)" :class="{ 'btn-active': filters.maturity === period.value }">{{ period.text }}</button>
+    </div>
+
+    <div>
+      <label for="keyword">검색 키워드: </label>
+      <input type="text" v-model="filters.keyword">
+    </div>
+
+    <button @click="searchProducts">조회</button>
+
+    <div v-if="products && products.length">
+      <ul>
+        <li v-for="product in products" :key="product.id">
+          {{ product.productName }} ({{ product.productType }} - {{ product.depositCycle }}) - {{ product.maxInterestRate }}% - {{ product.productDetail }}
+        </li>
+      </ul>
+    </div>
+    <div v-else>
+        상품 정보가 없습니다.
+    </div>
+    <div>
+      <button @click="changePage(pagination.currentPage - 1)" :disabled="pagination.currentPage <= 0">이전</button>
+      <button v-if="pagination.currentPage > 3" @click="changePage(0)">...</button>
+      <span v-if="pagination.currentPage > 3 && pagination.currentPage - 3 > 1">...</span>
+      <button v-for="page in pagesToShow" :key="page" @click="changePage(page - 1)" :class="{ 'btn-active': pagination.currentPage === page - 1 }">
+        {{ page }}
+      </button>
+      <span v-if="pagination.currentPage < pagination.totalPages - 4 && pagination.totalPages - pagination.currentPage - 4 > 1">...</span>
+      <button v-if="pagination.currentPage < pagination.totalPages - 4" @click="changePage(pagination.totalPages - 1)">...</button>
+      <button @click="changePage(pagination.currentPage + 1)" :disabled="pagination.currentPage >= pagination.totalPages - 1">다음</button>
+    </div>
+  </div>
+</template>
+
+
+<script>
+import { ref, computed } from 'vue';
+
+export default {
+  name: 'SearchProductComponent',
+  setup() {
+    const productTypes = [
+      { text: '전체', value: '' },
+      { text: '예금', value: 'DEPOSIT' },
+      { text: '적금', value: 'SAVINGS' }
+    ];
+    const depositCycles = [
+      { text: '전체', value: '' },
+      { text: '자유적립식', value: 'FLEXIBLE' },
+      { text: '정액적립식', value: 'FIXED' }
+    ];
+    const maturityOptions = [
+      { text: '전체', value: '' },
+      { text: '1개월', value: '1' },
+      { text: '3개월', value: '3' },
+      { text: '6개월', value: '6' },
+      { text: '1년', value: '12' },
+      { text: '2년', value: '24' },
+      { text: '3년 이상', value: '36' }
+    ];
+    const pagination = ref({
+      totalElements: 0,
+      totalPages: 0,
+      currentPage: 0,
+      pageSize: 10
+    });
+
+    const filters = ref({
+      productType: '',
+      maturity: '',
+      depositCycle: '',
+      keyword: ''
+    });
+
+    const products = ref([]);
+
+    const setFilter = (filter, value) => {
+      filters.value[filter] = value;
+    };
+
+    const searchProducts = async () => {
+      const payload = {
+          productType: filters.value.productType || null,
+          maturity: filters.value.maturity || null,
+          depositCycle: filters.value.depositCycle || null,
+          keyword: filters.value.keyword || null
       };
-  
-      const searchProducts = async (page) => {
-        const payload = {
-            productType: filters.value.productType || null,
-            maturity: filters.value.maturity || null,
-            depositCycle: filters.value.depositCycle || null,
-            keyword: filters.value.keyword || null
-        };
 
-        console.log("Request Body:", JSON.stringify(payload)); // 요청 본문 출력
+      try {
+          const response = await fetch(`http://localhost:8080/product/search?page=${pagination.value.currentPage}&size=${pagination.value.pageSize}`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJsb2dpbklkIjoic2hpbiIsImlhdCI6MTcxMzMyNDg5NCwiZXhwIjoxNzEzMzg0ODk0fQ.Rqvo55AwfXh7UbPTImhNRezPZjQQhd8BzEsJTsGcO4w'
+              },
+              body: JSON.stringify(payload)
+          });
 
-        try {
-            const response = await fetch(`http://localhost:8080/product/search?page=${page}&size=${pagination.value.pageSize}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJsb2dpbklkIjoic2hpbiIsImlhdCI6MTcxMzMyNDg5NCwiZXhwIjoxNzEzMzg0ODk0fQ.Rqvo55AwfXh7UbPTImhNRezPZjQQhd8BzEsJTsGcO4w'
-                },
-                body: JSON.stringify(payload)
-            });
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const responseData = await response.json();
+          products.value = responseData.data.products;
+          pagination.value = responseData.data.pagenation;
+      } catch (error) {
+          console.error("서버 통신 오류:", error.message);
+      }
+    };
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const responseData = await response.json();
-            products.value = responseData.data.products;
-            pagination.value = responseData.data.pagenation;
-        } catch (error) {
-            console.error("서버 통신 오류:", error.message);
-        }
-      };
+    const changePage = (newPage) => {
+      pagination.value.currentPage = newPage;
+      searchProducts();
+    };
 
-      const changePage = (newPage) => {
-        pagination.value.currentPage = newPage;
-        searchProducts(newPage);
-      };
+    const pagesToShow = computed(() => {
+      let pages = [];
+      let startPage = Math.max(pagination.value.currentPage - 2, 0);
+      let endPage = Math.min(startPage + 5, pagination.value.totalPages);
 
-      return { filters, products, pagination, onProductTypeChange, searchProducts, changePage };
-    }
-  };
-  </script>
-  
-  <style>
-  /* 스타일은 필요에 따라 추가 */
-  </style>
-  
+      for (let i = startPage; i < endPage; i++) {
+        pages.push(i + 1); // display pages as 1-indexed
+      }
+      return pages;
+    });
+
+    return { filters, products, pagination, productTypes, depositCycles, maturityOptions, setFilter, searchProducts, changePage, pagesToShow };
+  }
+};
+</script>
+
+<style>
+.btn-active {
+  background-color: #007bff; /* Blue background for active state */
+  color: white; /* White text color for better contrast */
+  border: none;
+}
+
+button {
+  margin: 2px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button:disabled {
+  background-color: #ccc;
+  color: #666;
+}
+
+input[type="text"] {
+  padding: 5px;
+  margin-top: 5px;
+}
+</style>
