@@ -37,7 +37,7 @@
         <input type="text" v-model="filters.keyword">
       </div>
   
-      <button @click="searchProducts">조회</button>
+      <button @click="searchProducts(pagination.currentPage)">조회</button>
   
       <div v-if="products && products.length">
         <ul>
@@ -47,8 +47,13 @@
         </ul>
       </div>
       <div v-else>
-            상품 정보가 없습니다.
-        </div>
+          상품 정보가 없습니다.
+      </div>
+      <div>
+        <button @click="changePage(pagination.currentPage - 1)" :disabled="pagination.currentPage <= 0">이전</button>
+        <button @click="changePage(pagination.currentPage + 1)" :disabled="pagination.currentPage >= pagination.totalPages - 1">다음</button>
+        <span>Page {{ pagination.currentPage + 1 }} of {{ pagination.totalPages }}</span>
+      </div>
     </div>
   </template>
   
@@ -58,6 +63,13 @@
   export default {
     name: 'SearchProductComponent',
     setup() {
+      const pagination = ref({
+        totalElements: 0,
+        totalPages: 0,
+        currentPage: 0,
+        pageSize: 10
+      });
+      
       const filters = ref({
         productType: '',
         maturity: '',
@@ -73,7 +85,7 @@
         }
       };
   
-      const searchProducts = async () => {
+      const searchProducts = async (page) => {
         const payload = {
             productType: filters.value.productType || null,
             maturity: filters.value.maturity || null,
@@ -84,7 +96,7 @@
         console.log("Request Body:", JSON.stringify(payload)); // 요청 본문 출력
 
         try {
-            const response = await fetch(`http://localhost:8080/product/search?page=0&size=10`, {
+            const response = await fetch(`http://localhost:8080/product/search?page=${page}&size=${pagination.value.pageSize}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -98,13 +110,18 @@
             }
             const responseData = await response.json();
             products.value = responseData.data.products;
-            console.log("Product Response Data:", products.value)
+            pagination.value = responseData.data.pagenation;
         } catch (error) {
-            console.error("Error during fetch:", error.message);
+            console.error("서버 통신 오류:", error.message);
         }
       };
 
-      return { filters, products, onProductTypeChange, searchProducts };
+      const changePage = (newPage) => {
+        pagination.value.currentPage = newPage;
+        searchProducts(newPage);
+      };
+
+      return { filters, products, pagination, onProductTypeChange, searchProducts, changePage };
     }
   };
   </script>
