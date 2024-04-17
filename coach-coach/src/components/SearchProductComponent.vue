@@ -24,8 +24,16 @@
 
     <div v-if="products && products.length">
       <ul>
-        <li v-for="product in products" :key="product.id">
-          {{ product.productName }} ({{ product.productType }} - {{ product.depositCycle }}) - {{ product.maxInterestRate }}% - {{ product.productDetail }}
+        <li v-for="product in products" :key="product.id" class="product-item">
+          <div class="rate-info">
+            <span class="rate-label">최대 금리</span>
+            <span class="rate-value">{{ product.maxInterestRate }}%</span>
+          </div>
+          <div class="product-info">
+            <span class="product-type">{{ product.productType }} - {{ product.depositCycle }}</span>
+            <strong class="product-name">{{ product.productName }}</strong>
+            <span class="product-detail">{{ product.productDetail }}</span>
+          </div>
         </li>
       </ul>
     </div>
@@ -164,5 +172,52 @@ button:disabled {
 input[type="text"] {
   padding: 5px;
   margin-top: 5px;
+}
+.product-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.rate-section {
+  margin-right: 20px;
+  text-align: center;
+}
+
+.rate-label {
+  display: block;
+  font-size: small;
+  color: gray;
+}
+
+.rate-value {
+  font-size: larger;
+  color: orange;
+  font-weight: bold;
+}
+
+.product-details {
+  flex-grow: 1;
+}
+
+.product-type {
+  font-size: small;
+  color: gray;
+}
+
+.product-name {
+  display: block;
+  font-weight: bold;
+  color: black;
+}
+
+.product-description {
+  font-size: small;
+  color: darkgray;
 }
 </style>
