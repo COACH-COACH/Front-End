@@ -23,7 +23,14 @@
       </div>
       <div>
         <label for="birthDate">생년월일:</label>
-        <input type="text" id="birthDate" v-model="postData.birthDate">
+        <datepicker
+          id="birthDate"
+          v-model="postData.birthDate"
+          :format="datePickerFormat"
+          :input-class="'form-control'"
+          placeholder="날짜 선택"
+          @input="handleDateInput"
+        ></datepicker>
       </div>
       <div>
         <label for="region">지역:</label>
@@ -31,7 +38,14 @@
       </div>
       <div>
         <label for="lifeStage">생애 주기:</label>
-        <input type="text" id="lifeStage" v-model="postData.lifeStage">
+        <select id="lifeStage" v-model="postData.lifeStage">
+          <option value="UNI">대학생</option>
+          <option value="NEW_JOB">사회 초년생</option>
+          <option value="NEW_WED">신혼 부부</option>
+          <option value="HAVE_CHILD">자녀 있음</option>
+          <option value="NO_CHILD">자녀 없음</option>
+          <option value="RETIR">은퇴</option>
+        </select>
       </div>
       <button type="submit">가입</button>
     </form>
@@ -46,7 +60,12 @@
 </template>
 
 <script>
+import Datepicker from 'vue3-datepicker';
+
 export default {
+  components: {
+    Datepicker
+  },
   data() {
     return {
       postData: {
@@ -54,11 +73,12 @@ export default {
         loginPw: '',
         fullName: '',
         sex: 'M',
-        birthDate: '',
+        birthDate: null, // 달력에서 선택된 날짜를 저장할 변수
         region: '',
-        lifeStage: ''
+        lifeStage: 'UNI'
       },
-      response: null
+      response: null,
+      datePickerFormat: 'yyyy-MM-dd' // 달력의 표시 형식
     };
   },
   methods: {
@@ -79,7 +99,26 @@ export default {
       } catch (error) {
         console.error('가입 요청 중 오류 발생:', error);
       }
+    },
+    handleDateInput(date) {
+      // 날짜가 선택되면 해당 날짜를 ISO 형식(yyyy-MM-dd)으로 포맷하여 postData에 할당
+      this.postData.birthDate = date ? date.toISOString().split('T')[0] : null;
     }
   }
 };
 </script>
+
+<style>
+/* 선택된 날짜 피커 스타일링 (선택사항) */
+.form-control {
+  width: 200px;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+}
+</style>
