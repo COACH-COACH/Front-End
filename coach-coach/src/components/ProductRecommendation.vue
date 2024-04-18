@@ -1,50 +1,57 @@
 <template>
   <div class="container">
-    <div v-if="itemRecommendations.length > 0 && clusterRecommendations.length > 0">
-      <h1>Banner 1: 고객님의 과거 상품과 유사한 상품을 추천해드려요</h1>
-      <div class = "banner-container">
-        <div class="banner" v-for="item in itemRecommendations" :key="item.idPk">
-          <div class="product-name"> {{ item.productName }} </div>
-          <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
-          <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
+    <!--로딩 메시지-->
+    <div v-if="isLoading" class="loading-message">
+      <h1> 고객님 맞춤 예적금 상품을 찾고 있습니다! <br> 잠시만 기다려주세요... </h1>
+    </div>
+  
+    <template v-else>
+      <div v-if="itemRecommendations.length > 0 && clusterRecommendations.length > 0">
+        <h1>고객님의 과거 상품과 유사한 상품을 추천해드려요</h1>
+        <div class = "banner-container">
+          <div class="banner" v-for="item in itemRecommendations" :key="item.idPk">
+            <div class="product-name"> {{ item.productName }} </div>
+            <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
+            <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
+          </div>
+        </div>
+
+        <h1>고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h1>
+        <div class = "banner-container">
+          <div class="banner" v-for="cluster in clusterRecommendations" :key="cluster.idPk">
+            <div class="product-name"> {{ cluster.productName }} </div>
+            <div class="interest-rate">최대금리 : {{ cluster.maxInterestRate }}%</div>
+            <div class="maturity">가입기간 : {{ cluster.maturity }}개월</div>
+          </div>
         </div>
       </div>
 
-      <h1>Banner 2: 고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h1>
-      <div class = "banner-container">
-        <div class="banner" v-for="cluster in clusterRecommendations" :key="cluster.idPk">
-          <div class="product-name"> {{ cluster.productName }} </div>
-          <div class="interest-rate">최대금리 : {{ cluster.maxInterestRate }}%</div>
-          <div class="maturity">가입기간 : {{ cluster.maturity }}개월</div>
+      <div v-else-if="itemRecommendations.length > 0">
+        <h1>고객님의 과거 상품과 유사한 상품을 추천해드려요</h1>
+        <div class = "banner-container">
+          <div class="banner" v-for="item in itemRecommendations" :key="item.idPk">
+            <div class="product-name"> {{ item.productName }} </div>
+            <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
+            <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div v-else-if="itemRecommendations.length > 0">
-      <h1>고객님의 과거 상품과 유사한 상품을 추천해드려요</h1>
-      <div class = "banner-container">
-        <div class="banner" v-for="item in itemRecommendations" :key="item.idPk">
-          <div class="product-name"> {{ item.productName }} </div>
-          <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
-          <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
+      <div v-else-if="staticRecommendations.length > 0">
+        <h1>고객님과 같은 생애주기를 지나고 있는 다른 고객님들이 많이 찾은 상품이에요</h1>
+        <div class = "banner-container">
+          <div class="banner" v-for="statics in staticRecommendations" :key="statics.idPk">
+            <div class="product-name"> {{ statics.productName }} </div>
+            <div class="interest-rate">최대금리 : {{ statics.maxInterestRate }}%</div>
+            <div class="maturity">가입기간 : {{ statics.maturity }}개월</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div v-else-if="staticRecommendations.length > 0">
-      <h1>고객님과 같은 생애주기를 지나고 있는 다른 고객님들이 많이 찾은 상품이에요</h1>
-      <div class = "banner-container">
-        <div class="banner" v-for="statics in staticRecommendations" :key="statics.idPk">
-          <div class="product-name"> {{ statics.productName }} </div>
-          <div class="interest-rate">최대금리 : {{ statics.maxInterestRate }}%</div>
-          <div class="maturity">가입기간 : {{ statics.maturity }}개월</div>
-        </div>
+      <div v-else>
+        <h1 class="no-product">상품을 찾을 수 없습니다</h1>
       </div>
-    </div>
-
-    <div v-else>
-      <h1 class="no-product">상품을 찾을 수 없습니다</h1>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -59,7 +66,8 @@ export default {
       itemRecommendations: [],
       clusterRecommendations: [],
       staticRecommendations: [],
-      adminResponse: null
+      adminResponse: null,
+      isLoading: true
     };
   },
   created() {
@@ -77,6 +85,7 @@ export default {
           return;
         }
 
+        this.isLoading = true;
         const response = await fetch(url, {
           method: 'GET',
           headers: {
@@ -84,7 +93,7 @@ export default {
             'Content-Type': 'application/json'
           }
         });
-
+        this.isLoading = false;
         this.adminResponse = response.data; // Admin 페이지 응답 저장
         const data = await response.json();
         console.log('Received data:', data);
