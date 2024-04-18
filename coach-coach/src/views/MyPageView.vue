@@ -35,6 +35,11 @@
         <div v-if="responseMessage">
           <p>{{ responseMessage }}</p>
         </div>
+        <h2>회원 비활성화</h2>
+        <button @click="deactivateUser">사용자 비활성화</button>
+        <div v-if="responseMessageDeactivate">
+          <p>{{ responseMessageDeactivate }}</p>
+        </div>
       </div>
       <div v-else-if="currentPage === 'page2'">
         <h2>Page 2 Content</h2>
@@ -46,15 +51,20 @@
 
 <script>
 import axios from 'axios';
+import { mapGetters } from 'vuex';
 
 export default {
+  computed: {
+    ...mapGetters(['getToken']) // Vuex의 getToken getter를 컴포넌트 내에서 사용 가능하게 등록
+  },
   data() {
     return {
       formData: {
         loginPw: '',
         lifeStage: '' // 기본 선택 값은 빈 문자열로 설정
       },
-      responseMessage: '',
+      responseMessage: null,
+      responseMessageDeactivate: null,
       currentPage: 'page1' // 초기 페이지 설정
     };
   },
@@ -63,23 +73,45 @@ export default {
     showPage(pageName) {
       this.currentPage = pageName;
     },
+
     async submitForm() {
       const url = 'http://localhost:8080/user/modify';
 
       try {
-        const response = await fetch(url, {
-          method: 'POST',
+        const token = this.getToken;
+        console.log(token); // 여기까진 잘 됨
+
+        const response = await axios.put(url, this.formData, {
           headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: JSON.stringify(this.postData)
+            Authorization: token, // Authorization 헤더에 토큰 직접 설정
+          }
         });
 
         // 서버로부터 응답 받은 메시지 표시
-        this.responseMessage = response.data;
+        this.responseMessage = await response.data;
       } catch (error) {
         console.error('Failed to update information:', error);
         this.responseMessage = 'Failed to update information';
+      }
+    },
+    
+    async deactivateUser() {
+      const url = 'http://localhost:8080/user/deactivate';
+
+      try {
+        const token = this.getToken;
+
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `${token}`, // HTTP 요청 헤더에 토큰 포함
+          }
+        });
+        // 서버로부터 받은 응답 메시지 표시
+        this.responseMessageDeactivate = response.data.message; // 응답 데이터에서 필요한 정보를 추출하여 표시
+      } catch (error) {
+        console.error('사용자 비활성화 요청 실패:', error);
+        this.responseMessageDeactivate = '사용자 비활성화 요청에 실패하였습니다.';
       }
     }
   }
