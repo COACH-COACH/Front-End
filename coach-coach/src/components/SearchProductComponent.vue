@@ -62,10 +62,14 @@
 <script>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 export default {
   name: 'SearchProductComponent',
   setup() {
+    const store = useStore(); // Vuex 스토어 사용
+    const token = computed(() => store.getters.getToken); // Vuex getter 사용
+
     const productTypes = [
       { text: '전체', value: '' },
       { text: '예금', value: 'DEPOSIT' },
@@ -116,6 +120,7 @@ export default {
     };
 
     const searchProducts = async () => {
+      console.log("토큰 체크:", token.value)
       const payload = {
           productType: filters.value.productType || null,
           maturity: filters.value.maturity || null,
@@ -124,21 +129,26 @@ export default {
       };
 
       try {
-          const response = await fetch(`http://localhost:8080/product/search?page=${pagination.value.currentPage}&size=${pagination.value.pageSize}`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJsb2dpbklkIjoic2hpbiIsImlhdCI6MTcxMzQxOTAxMiwiZXhwIjoxNzEzNDc5MDEyfQ.2SFl92HddkC7316Tf63BdLXGH4i3Gib_8iUc646eQCw'
-              },
-              body: JSON.stringify(payload)
-          });
+        if (!token.value) {
+          console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
+          return;
+        }
 
-          if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const responseData = await response.json();
-          products.value = responseData.data.products;
-          pagination.value = responseData.data.pagenation;
+        const response = await fetch(`http://localhost:8080/product/search?page=${pagination.value.currentPage}&size=${pagination.value.pageSize}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${token.value}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        products.value = responseData.data.products;
+        pagination.value = responseData.data.pagenation;
           
       } catch (error) {
           console.error("서버 통신 오류:", error.message);
