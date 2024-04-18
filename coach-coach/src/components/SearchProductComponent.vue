@@ -25,14 +25,18 @@
     <div v-if="products && products.length">
       <ul>
         <li v-for="product in products" :key="product.id" class="product-item">
-          <div class="rate-info">
+          <div class="rate-section">
             <span class="rate-label">최대 금리</span>
             <span class="rate-value">{{ product.maxInterestRate }}%</span>
           </div>
-          <div class="product-info">
-            <span class="product-type">{{ product.productType }} - {{ product.depositCycle }}</span>
+          <div class="product-details">
+            <span class="product-type">{{ product.productType }} | {{ product.depositCycle }}</span>
             <strong class="product-name">{{ product.productName }}</strong>
-            <span class="product-detail">{{ product.productDetail }}</span>
+            <span class="product-description">{{ product.productDetail }}</span>
+          </div>
+          <div class="product-actions">
+            <button @click="enroll(product.id)">가입하기</button>
+            <button @click="viewDetails(product.id)">상세보기</button>
           </div>
         </li>
       </ul>
@@ -57,10 +61,15 @@
 
 <script>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 export default {
   name: 'SearchProductComponent',
   setup() {
+    const store = useStore(); // Vuex 스토어 사용
+    const token = computed(() => store.getters.getToken); // Vuex getter 사용
+
     const productTypes = [
       { text: '전체', value: '' },
       { text: '예금', value: 'DEPOSIT' },
@@ -94,13 +103,24 @@ export default {
       keyword: ''
     });
 
+    const router = useRouter();
     const products = ref([]);
+
+    function enroll(productId) {
+      // TODO: 가입 로직 구현
+      console.log('Enrolling in product:', productId);
+    }
+
+    function viewDetails(productId) {
+      router.push({ name: 'productdetail', params: { pid: productId } });
+    }
 
     const setFilter = (filter, value) => {
       filters.value[filter] = value;
     };
 
     const searchProducts = async () => {
+      console.log("토큰 체크:", token.value)
       const payload = {
           productType: filters.value.productType || null,
           maturity: filters.value.maturity || null,
@@ -109,21 +129,26 @@ export default {
       };
 
       try {
-          const response = await fetch(`http://localhost:8080/product/search?page=${pagination.value.currentPage}&size=${pagination.value.pageSize}`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJsb2dpbklkIjoic2hpbiIsImlhdCI6MTcxMzMyNDg5NCwiZXhwIjoxNzEzMzg0ODk0fQ.Rqvo55AwfXh7UbPTImhNRezPZjQQhd8BzEsJTsGcO4w'
-              },
-              body: JSON.stringify(payload)
-          });
+        if (!token.value) {
+          console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
+          return;
+        }
 
-          if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const responseData = await response.json();
-          products.value = responseData.data.products;
-          pagination.value = responseData.data.pagenation;
+        const response = await fetch(`http://localhost:8080/product/search?page=${pagination.value.currentPage}&size=${pagination.value.pageSize}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${token.value}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        products.value = responseData.data.products;
+        pagination.value = responseData.data.pagenation;
           
       } catch (error) {
           console.error("서버 통신 오류:", error.message);
@@ -146,7 +171,7 @@ export default {
       return pages;
     });
 
-    return { filters, products, pagination, productTypes, depositCycles, maturityOptions, setFilter, searchProducts, changePage, pagesToShow };
+    return { filters, products, pagination, productTypes, depositCycles, maturityOptions, setFilter, searchProducts, changePage, pagesToShow, enroll, viewDetails };
   }
 };
 </script>
@@ -174,6 +199,11 @@ input[type="text"] {
   padding: 5px;
   margin-top: 5px;
 }
+
+.product-details {
+  flex-grow: 1;
+}
+
 .product-list {
   list-style-type: none;
   padding: 0;
@@ -185,12 +215,28 @@ input[type="text"] {
   margin-bottom: 20px;
 }
 
+.product-item hr {
+  border: none;
+  height: 1px;
+  background-color: gray;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.product-actions {
+  margin-left: auto;
+}
+
+.product-actions button {
+  margin-left: 10px;
+}
+
 .rate-section {
   margin-right: 20px;
   text-align: center;
 }
 
-.rate-label {
+.rate-label, .product-type, .product-description {
   display: block;
   font-size: small;
   color: gray;
@@ -202,23 +248,9 @@ input[type="text"] {
   font-weight: bold;
 }
 
-.product-details {
-  flex-grow: 1;
-}
-
-.product-type {
-  font-size: small;
-  color: gray;
-}
-
 .product-name {
   display: block;
   font-weight: bold;
   color: black;
-}
-
-.product-description {
-  font-size: small;
-  color: darkgray;
 }
 </style>
