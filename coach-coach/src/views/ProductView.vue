@@ -1,5 +1,19 @@
 <template>
     <div class="product">
-        <h1>This is an product page</h1>
+        <RecommendationComponent/>
+        <SearchProductComponent/>
     </div>
 </template>
+
+<script>
+import RecommendationComponent from '@/components/ProductRecommendation.vue'
+import SearchProductComponent from '@/components/SearchProductComponent.vue'
+
+export default {
+    name: 'ProductView',
+    components: {
+        RecommendationComponent, 
+        SearchProductComponent
+    }
+}
+</script>
