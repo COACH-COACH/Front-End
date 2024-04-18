@@ -7,6 +7,7 @@ import SignUpView from '@/views/SignUpView.vue'
 import SignInView from '@/views/SignInView.vue'
 import TokenStoringTestView from '@/views/TokenStoringTestView.vue'
 import ConsumptionView from '@/views/ConsumptionView.vue'
+import ProductDetailView from '@/views/ProductDetailView.vue'
 
 const routes = [
   {
@@ -50,6 +51,12 @@ const routes = [
     component: ConsumptionView,
     meta: { requiresAuth: true } // 인증이 필요한 페이지로 설정
   },
+  {
+    path: '/main/product/detail/:pid',
+    name: 'productdetail',
+    component: ProductDetailView,
+    props: true
+  }
 ]
 
 const router = createRouter({

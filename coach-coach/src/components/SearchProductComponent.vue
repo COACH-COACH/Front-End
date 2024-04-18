@@ -25,14 +25,18 @@
     <div v-if="products && products.length">
       <ul>
         <li v-for="product in products" :key="product.id" class="product-item">
-          <div class="rate-info">
+          <div class="rate-section">
             <span class="rate-label">최대 금리</span>
             <span class="rate-value">{{ product.maxInterestRate }}%</span>
           </div>
-          <div class="product-info">
-            <span class="product-type">{{ product.productType }} - {{ product.depositCycle }}</span>
+          <div class="product-details">
+            <span class="product-type">{{ product.productType }} | {{ product.depositCycle }}</span>
             <strong class="product-name">{{ product.productName }}</strong>
-            <span class="product-detail">{{ product.productDetail }}</span>
+            <span class="product-description">{{ product.productDetail }}</span>
+          </div>
+          <div class="product-actions">
+            <button @click="enroll(product.id)">가입하기</button>
+            <button @click="viewDetails(product.id)">상세보기</button>
           </div>
         </li>
       </ul>
@@ -57,6 +61,7 @@
 
 <script>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'SearchProductComponent',
@@ -94,7 +99,17 @@ export default {
       keyword: ''
     });
 
+    const router = useRouter();
     const products = ref([]);
+
+    function enroll(productId) {
+      // TODO: 가입 로직 구현
+      console.log('Enrolling in product:', productId);
+    }
+
+    function viewDetails(productId) {
+      router.push({ name: 'productdetail', params: { pid: productId } });
+    }
 
     const setFilter = (filter, value) => {
       filters.value[filter] = value;
@@ -113,7 +128,7 @@ export default {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJsb2dpbklkIjoic2hpbiIsImlhdCI6MTcxMzMyNDg5NCwiZXhwIjoxNzEzMzg0ODk0fQ.Rqvo55AwfXh7UbPTImhNRezPZjQQhd8BzEsJTsGcO4w'
+                  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJsb2dpbklkIjoic2hpbiIsImlhdCI6MTcxMzQxOTAxMiwiZXhwIjoxNzEzNDc5MDEyfQ.2SFl92HddkC7316Tf63BdLXGH4i3Gib_8iUc646eQCw'
               },
               body: JSON.stringify(payload)
           });
@@ -145,7 +160,7 @@ export default {
       return pages;
     });
 
-    return { filters, products, pagination, productTypes, depositCycles, maturityOptions, setFilter, searchProducts, changePage, pagesToShow };
+    return { filters, products, pagination, productTypes, depositCycles, maturityOptions, setFilter, searchProducts, changePage, pagesToShow, enroll, viewDetails };
   }
 };
 </script>
@@ -173,6 +188,11 @@ input[type="text"] {
   padding: 5px;
   margin-top: 5px;
 }
+
+.product-details {
+  flex-grow: 1;
+}
+
 .product-list {
   list-style-type: none;
   padding: 0;
@@ -184,12 +204,28 @@ input[type="text"] {
   margin-bottom: 20px;
 }
 
+.product-item hr {
+  border: none;
+  height: 1px;
+  background-color: gray;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.product-actions {
+  margin-left: auto;
+}
+
+.product-actions button {
+  margin-left: 10px;
+}
+
 .rate-section {
   margin-right: 20px;
   text-align: center;
 }
 
-.rate-label {
+.rate-label, .product-type, .product-description {
   display: block;
   font-size: small;
   color: gray;
@@ -201,23 +237,9 @@ input[type="text"] {
   font-weight: bold;
 }
 
-.product-details {
-  flex-grow: 1;
-}
-
-.product-type {
-  font-size: small;
-  color: gray;
-}
-
 .product-name {
   display: block;
   font-weight: bold;
   color: black;
-}
-
-.product-description {
-  font-size: small;
-  color: darkgray;
 }
 </style>
