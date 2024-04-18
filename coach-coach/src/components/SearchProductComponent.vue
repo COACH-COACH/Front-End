@@ -124,6 +124,7 @@ export default {
           const responseData = await response.json();
           products.value = responseData.data.products;
           pagination.value = responseData.data.pagenation;
+          
       } catch (error) {
           console.error("서버 통신 오류:", error.message);
       }
