@@ -9,7 +9,8 @@
       <div v-if="itemRecommendations.length > 0 && clusterRecommendations.length > 0">
         <h1>고객님의 과거 상품과 유사한 상품을 추천해드려요</h1>
         <div class = "banner-container">
-          <div class="banner" v-for="item in itemRecommendations" :key="item.idPk">
+          <div class="banner" v-for="item in itemRecommendations" :key="item.idPk" 
+          @click="goToProductDetail(item.idPk)">
             <div class="product-name"> {{ item.productName }} </div>
             <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
@@ -18,7 +19,8 @@
 
         <h1>고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h1>
         <div class = "banner-container">
-          <div class="banner" v-for="cluster in clusterRecommendations" :key="cluster.idPk">
+          <div class="banner" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
+          @click="goToProductDetail(clsuter.idPk)">
             <div class="product-name"> {{ cluster.productName }} </div>
             <div class="interest-rate">최대금리 : {{ cluster.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ cluster.maturity }}개월</div>
@@ -29,7 +31,8 @@
       <div v-else-if="itemRecommendations.length > 0">
         <h1>고객님의 과거 상품과 유사한 상품을 추천해드려요</h1>
         <div class = "banner-container">
-          <div class="banner" v-for="item in itemRecommendations" :key="item.idPk">
+          <div class="banner" v-for="item in itemRecommendations" :key="item.idPk"
+          @click="goToProductDetail(item.idPk)">
             <div class="product-name"> {{ item.productName }} </div>
             <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
@@ -40,7 +43,8 @@
       <div v-else-if="staticRecommendations.length > 0">
         <h1>고객님과 같은 생애주기를 지나고 있는 다른 고객님들이 많이 찾은 상품이에요</h1>
         <div class = "banner-container">
-          <div class="banner" v-for="statics in staticRecommendations" :key="statics.idPk">
+          <div class="banner" v-for="statics in staticRecommendations" :key="statics.idPk"
+          @click="goToProductDetail(statics.idPk)">
             <div class="product-name"> {{ statics.productName }} </div>
             <div class="interest-rate">최대금리 : {{ statics.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ statics.maturity }}개월</div>
@@ -74,6 +78,9 @@ export default {
     this.fetchRecommendations();
   },
   methods: {
+    goToProductDetail(idPk){
+      this.$router.push({ name: 'productdetail', params: { pid:idPk }});
+    },
     async fetchRecommendations() {
       const url = 'http://localhost:8080/product/recommend'; // API의 URL을 여기에 입력하세요
 
