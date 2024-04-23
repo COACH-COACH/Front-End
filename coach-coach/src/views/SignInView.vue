@@ -1,19 +1,18 @@
-
 <template>
   <div>
     <h1>로그인</h1>
-    <form @submit.prevent="login">
-      <div>
+    <form @submit.prevent="login" class="login-form">
+      <div class="form-group">
         <label for="loginId">아이디:</label>
-        <input type="text" id="loginId" v-model="loginId">
+        <input type="text" id="loginId" v-model="loginId" class="form-input">
       </div>
-      <div>
+      <div class="form-group">
         <label for="loginPw">비밀번호:</label>
-        <input type="password" id="loginPw" v-model="loginPw">
+        <input type="password" id="loginPw" v-model="loginPw" class="form-input">
       </div>
-      <button type="submit">로그인</button>
+      <button type="submit" class="btn-submit">로그인</button>
     </form>
-    <div v-if="isLoggedIn">
+    <div v-if="isLoggedIn" class="login-success">
       <h2>로그인 성공!</h2>
       <p>발급된 토큰: {{ getToken }}</p>
     </div>
@@ -61,3 +60,58 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.login-form {
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+}
+
+.btn-submit {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-success {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #28a745;
+  border-radius: 5px;
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.login-success h2 {
+  margin-bottom: 10px;
+}
+
+.centered-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 화면 전체 높이를 기준으로 중앙 정렬 */
+}
+
+h1 {
+  text-align: center;
+}
+</style>

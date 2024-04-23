@@ -1,44 +1,44 @@
 <template>
   <div>
     <h1>회원가입</h1>
-    <form @submit.prevent="submitForm">
-      <div>
+    <form @submit.prevent="submitForm" class="signup-form">
+      <div class="form-group">
         <label for="loginId">아이디:</label>
-        <input type="text" id="loginId" v-model="postData.loginId">
+        <input type="text" id="loginId" v-model="postData.loginId" class="form-input">
       </div>
-      <div>
+      <div class="form-group">
         <label for="loginPw">비밀번호:</label>
-        <input type="password" id="loginPw" v-model="postData.loginPw">
+        <input type="password" id="loginPw" v-model="postData.loginPw" class="form-input"> <!-- style="width:70%; margin-left:5px" -->
       </div>
-      <div>
+      <div class="form-group">
         <label for="fullName">이름:</label>
-        <input type="text" id="fullName" v-model="postData.fullName">
+        <input type="text" id="fullName" v-model="postData.fullName" class="form-input">
       </div>
-      <div>
+      <div class="form-group">
         <label for="sex">성별:</label>
-        <select id="sex" v-model="postData.sex">
+        <select id="sex" v-model="postData.sex" class="form-select">
           <option value="M">남성</option>
           <option value="F">여성</option>
         </select>
       </div>
-      <div>
+      <div class="form-group">
         <label for="birthDate">생년월일:</label>
         <datepicker
           id="birthDate"
           v-model="postData.birthDate"
           :format="datePickerFormat"
-          :input-class="'form-control'"
+          :input-class="'form-input'"
           placeholder="날짜 선택"
           @input="handleDateInput"
         ></datepicker>
       </div>
-      <div>
+      <div class="form-group">
         <label for="region">지역:</label>
-        <input type="text" id="region" v-model="postData.region">
+        <input type="text" id="region" v-model="postData.region" class="form-input">
       </div>
-      <div>
+      <div class="form-group">
         <label for="lifeStage">생애 주기:</label>
-        <select id="lifeStage" v-model="postData.lifeStage">
+        <select id="lifeStage" v-model="postData.lifeStage" class="form-select">
           <option value="UNI">대학생</option>
           <option value="NEW_JOB">사회 초년생</option>
           <option value="NEW_WED">신혼 부부</option>
@@ -47,9 +47,9 @@
           <option value="RETIR">은퇴</option>
         </select>
       </div>
-      <button type="submit">가입</button>
+      <button type="submit" class="btn-submit">가입</button>
     </form>
-    <div v-if="response">
+    <div v-if="response" class="response-message">
       <h2>가입 결과:</h2>
       <p>아이디: {{ response.loginId }}</p>
       <p>이름: {{ response.fullName }}</p>
@@ -107,18 +107,56 @@ export default {
   }
 };
 </script>
+<style scoped>
+.signup-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
 
-<style>
-/* 선택된 날짜 피커 스타일링 (선택사항) */
-.form-control {
-  width: 200px;
-  padding: 0.375rem 0.75rem;
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 8px;
   font-size: 1rem;
-  line-height: 1.5;
-  color: #495057;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid #ced4da;
-  border-radius: 0.25rem;
+}
+
+.btn-submit {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.response-message {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+}
+
+.response-message h2 {
+  margin-bottom: 10px;
+}
+
+.centered-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 화면 전체 높이를 기준으로 중앙 정렬 */
+}
+
+h1 {
+  text-align: center;
 }
 </style>

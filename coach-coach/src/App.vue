@@ -6,7 +6,8 @@
         <nav class="navigation">
           <ul>
             <li><router-link to="/main/goal">목표 관리</router-link></li>
-            <li><router-link to="/main/payment">소비 관리</router-link></li>
+            <!-- <li><router-link to="/main/payment">소비 관리</router-link></li> -->
+            <li><router-link to="/main/consumption">소비 관리</router-link></li>
             <li><router-link to="/main/product">금융 상품</router-link></li>
             <li><router-link to="/main/news">추천 뉴스</router-link></li>
           </ul>
@@ -16,7 +17,7 @@
           <router-link to="/main/signup">회원가입</router-link>
           <router-link to="/main/signin">로그인</router-link>
           <!-- <router-link to="/main/test">토큰저장되나</router-link> -->
-          <router-link to="/main/consumption">소비탭</router-link>
+          <!-- <router-link to="/main/consumption">소비탭</router-link> -->
           <!-- <router-link to="/logout" class="logout-link">로그아웃</router-link> -->
         </div>
       </div>
