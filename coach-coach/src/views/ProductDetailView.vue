@@ -31,9 +31,9 @@
         <!-- Additional Meta Items -->
       </div>
     </div>
-
-    <!-- Body Section -->
-    <div class="product-detail-body">
+  </div>
+  <div class="product-detail-body">
+    <div class="product-detail-content">
       <h2 class="section-title">상품 개요</h2>
       <div class="product-description">
         <div class="attributes">
@@ -195,6 +195,18 @@ export default {
   background: #fff;
 }
 
+.product-detail-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1000px;
+  margin: 20px auto;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fff;
+}
+
 .product-detail-header {
   width: 100%;
   padding-bottom: 20px;
@@ -202,15 +214,10 @@ export default {
   text-align: center;
 }
 
-.product-detail-body {
+.product-detail-content {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px; /* 컬럼 사이의 간격 조정 */
-}
-
-.product-detail-content {
-  flex: 1;
-  padding-right: 20px;
 }
 
 .product-title {
