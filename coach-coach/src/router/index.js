@@ -30,7 +30,8 @@ const routes = [
   {
     path: '/main/mypage',
     name: 'mypage',
-    component: MypageView
+    component: MypageView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/main/signup',
@@ -98,13 +99,13 @@ function checkUserAuthentication() {
 
 // 인증 실패 시 안내 메시지 표시 및 리다이렉트 처리
 function showUnauthorizedMessage(next) {
-  const unauthorizedMessage = '로그인이 필요합니다. 로그인 페이지로 이동합니다.';
+  const unauthorizedMessage = '로그인이 필요합니다. 로그인 페이지로 이동해주세요.';
   alert(unauthorizedMessage);
 
   // 일정 시간이 지난 후 리다이렉트
-  setTimeout(() => {
-    next({ name: 'signin' });
-  }, 4000); // 4초 후 리다이렉트
+  // setTimeout(() => {
+  //   next({ name: 'signin' });
+  // }, 1000); // 1초 후 리다이렉트
 }
 
 export default router

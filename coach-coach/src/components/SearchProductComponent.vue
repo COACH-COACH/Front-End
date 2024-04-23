@@ -1,48 +1,56 @@
 <template>
-  <div>
+  <div class="search-page">
     <h3>예적금 상품 검색</h3>
-    <div>
-      <div>
-        종류: <button v-for="type in productTypes" :key="type.value" @click="setFilter('productType', type.value)" :class="{ 'btn-active': filters.productType === type.value }">{{ type.text }}</button>
+    <div class="filters">
+      <label class="filter">
+        종류:
+        <div class="filter-buttons">
+          <button v-for="type in productTypes" :key="type.value" @click="setFilter('productType', type.value)"
+                  :class="{ 'btn-active': filters.productType === type.value }">{{ type.text }}</button>
+        </div>
+      </label>
+
+      <label v-if="filters.productType === 'SAVINGS'" class="filter">
+        납입 주기:
+        <div class="filter-buttons">
+          <button v-for="cycle in depositCycles" :key="cycle.value" @click="setFilter('depositCycle', cycle.value)"
+                  :class="{ 'btn-active': filters.depositCycle === cycle.value }">{{ cycle.text }}</button>
+        </div>
+      </label>
+
+      <label class="filter">
+        가입기간:
+        <div class="filter-buttons">
+          <button v-for="period in maturityOptions" :key="period.value" @click="setFilter('maturity', period.value)"
+                  :class="{ 'btn-active': filters.maturity === period.value }">{{ period.text }}</button>
+        </div>
+      </label>
+
+      <div class="filter search-filter">
+        <input type="text" v-model="filters.keyword" placeholder="검색 키워드">
+        <button @click="searchProducts">조회</button>
       </div>
-
-      <div v-if="filters.productType === 'SAVINGS'">
-        납입 주기: <button v-for="cycle in depositCycles" :key="cycle.value" @click="setFilter('depositCycle', cycle.value)" :class="{ 'btn-active': filters.depositCycle === cycle.value }">{{ cycle.text }}</button>
-      </div>
     </div>
 
-    <div>
-      가입기간: <button v-for="period in maturityOptions" :key="period.value" @click="setFilter('maturity', period.value)" :class="{ 'btn-active': filters.maturity === period.value }">{{ period.text }}</button>
-    </div>
-
-    <div>
-      <label for="keyword">검색 키워드: </label>
-      <input type="text" v-model="filters.keyword">
-    </div>
-
-    <button @click="searchProducts">조회</button>
-
-    <div v-if="products && products.length">
-      <ul>
-        <li v-for="product in products" :key="product.id" class="product-item">
-          <div class="rate-section">
-            <span class="rate-label">최대 금리</span>
-            <span class="rate-value">{{ product.maxInterestRate }}%</span>
-          </div>
-          <div class="product-details">
-            <span class="product-type">{{ product.productType }} | {{ product.depositCycle }}</span>
-            <strong class="product-name">{{ product.productName }}</strong>
-            <span class="product-description">{{ product.productDetail }}</span>
+    <div class="products">
+      <div v-if="products && products.length" class="product-list">
+        <div v-for="product in products" :key="product.id" class="product-item">
+          <div class="product-info">
+            <div class="product-rate">
+              최대 금리: <strong>{{ product.maxInterestRate }}%</strong>
+            </div>
+            <div class="product-details">
+              {{ product.productType }} | {{ product.depositCycle }}
+              <strong>{{ product.productName }}</strong>
+              {{ product.productDetail }}
+            </div>
           </div>
           <div class="product-actions">
-            <button @click="enroll(product.id)">가입하기</button>
             <button @click="viewDetails(product.id)">상세보기</button>
           </div>
-        </li>
-      </ul>
-    </div>
-    <div v-else>
-        상품 정보가 없습니다.
+        </div>
+      </div>
+      <div v-else class="no-products">상품 정보가 없습니다.</div>
     </div>
     <div>
       <button @click="changePage(pagination.currentPage - 1)" :disabled="pagination.currentPage <= 0">이전</button>
@@ -60,7 +68,7 @@
 
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
@@ -171,86 +179,94 @@ export default {
       return pages;
     });
 
-    return { filters, products, pagination, productTypes, depositCycles, maturityOptions, setFilter, searchProducts, changePage, pagesToShow, enroll, viewDetails };
+    onMounted(() => {
+      searchProducts();
+    });
+    return { filters, products, pagination, productTypes, depositCycles, maturityOptions, setFilter, searchProducts, changePage, pagesToShow, enroll, viewDetails, searchProducts };
   }
 };
 </script>
 
 <style>
-.btn-active {
-  background-color: #007bff; /* Blue background for active state */
-  color: white; /* White text color for better contrast */
-  border: none;
+.search-page {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
 }
 
-button {
-  margin: 2px;
-  padding: 5px 10px;
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+}
+
+.filter-buttons button {
+  margin-right: 5px;
+  padding: 5px 15px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  background-color: #fff;
 }
 
-button:disabled {
-  background-color: #ccc;
-  color: #666;
+.filter-buttons button.btn-active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
 }
 
-input[type="text"] {
-  padding: 5px;
-  margin-top: 5px;
-}
-
-.product-details {
+.search-filter {
+  display: flex;
   flex-grow: 1;
 }
 
+.search-filter input {
+  flex-grow: 1;
+  margin-right: 5px;
+  padding: 5px;
+}
+
 .product-list {
-  list-style-type: none;
-  padding: 0;
+  border-top: 1px solid #eee;
 }
 
 .product-item {
   display: flex;
-  align-items: center;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
 }
 
-.product-item hr {
-  border: none;
-  height: 1px;
-  background-color: gray;
-  width: 100%;
-  margin-top: 20px;
+.product-info {
+  flex-grow: 1;
 }
 
-.product-actions {
-  margin-left: auto;
+.product-rate {
+  font-size: 1.5em;
+  color: #d32f2f;
+}
+
+.product-details {
+  font-size: 0.9em;
 }
 
 .product-actions button {
   margin-left: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
 }
 
-.rate-section {
-  margin-right: 20px;
+.no-products {
   text-align: center;
-}
-
-.rate-label, .product-type, .product-description {
-  display: block;
-  font-size: small;
-  color: gray;
-}
-
-.rate-value {
-  font-size: larger;
-  color: orange;
-  font-weight: bold;
-}
-
-.product-name {
-  display: block;
-  font-weight: bold;
-  color: black;
+  padding: 20px;
+  font-size: 1.1em;
 }
 </style>

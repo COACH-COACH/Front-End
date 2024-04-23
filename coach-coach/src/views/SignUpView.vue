@@ -73,7 +73,7 @@ export default {
         loginPw: '',
         fullName: '',
         sex: 'M',
-        birthDate: null, // 달력에서 선택된 날짜를 저장할 변수
+        birthDate: null,
         region: '',
         lifeStage: 'UNI'
       },
