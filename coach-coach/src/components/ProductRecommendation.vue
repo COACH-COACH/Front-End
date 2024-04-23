@@ -124,35 +124,85 @@ export default {
 </script>
 
 <style>
+/* 전체 컨테이너 */
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* 로딩 애니메이션 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loading-animation {
+  text-align: center;
+  animation: pulse 2s infinite;
+}
+
+/* keyframes for the animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 상품 추천 섹션 */
+.recommendation-section {
+  margin-top: 20px;
+}
+
+/* 배너 스타일 */
 .banner-container {
   display: flex;
-  flex-wrap: nowrap;
+  flex-direction:row;
+  width: 100%;
   overflow-x: auto;
+  padding: 10px 0;
 }
 
 .banner {
-  flex: 0 0 auto; /* Do not grow, do not shrink, basis auto */
-  width: 20%; /* Adjust the width as per requirement */
-  border: 1px solid #ccc; /* For visibility */
-  margin-right: 16px; /* Space between banners */
-  text-align: center;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Optional: for better visibility */
-  border-radius: 4px; /* Optional: for rounded corners */
-  padding: 10px; /* Optional: for some spacing inside the banner */
+  flex: 0 0 auto;
+  margin-right: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+}
+
+.banner:hover {
+  transform: translateY(-5px);
 }
 
 .product-name {
-  font-size: 1.2em; /* Larger text for product name */
-  margin-bottom: 8px; /* Spacing below the product name */
+  background-color: #f5f5f5;
+  padding: 12px 16px;
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: bold;
 }
 
 .interest-rate {
-  font-size: 2em; /* Larger text for interest rate */
-  color: #e44; /* Color for emphasis */
-  margin-bottom: 8px; /* Spacing below the interest rate */
+  color: #d32f2f;
+  padding: 8px 16px;
+  margin: 0;
+  font-size: 1.5em;
+  font-weight: bold;
 }
 
 .maturity {
-  font-size: 0.8em; /* Smaller text for maturity */
+  background-color: #fafafa;
+  padding: 10px 16px;
+  margin: 0;
+  font-size: 1em;
 }
 </style>
