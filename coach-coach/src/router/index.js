@@ -8,6 +8,8 @@ import SignInView from '@/views/SignInView.vue'
 import TokenStoringTestView from '@/views/TokenStoringTestView.vue'
 import ConsumptionView from '@/views/ConsumptionView.vue'
 import ProductDetailView from '@/views/ProductDetailView.vue'
+import CardNewsView from '@/views/CardNewsView.vue'
+
 
 const routes = [
   {
@@ -57,6 +59,12 @@ const routes = [
     name: 'productdetail',
     component: ProductDetailView,
     props: true
+  },
+  {
+    path: '/main/news',
+    name: 'cardnews',
+    component: CardNewsView,
+    meta: { requiresAuth: true }
   }
 ]
 
