@@ -3,50 +3,73 @@
     <!-- 왼쪽 사이드 바 -->
     <div class="sidebar">
       <!-- 버튼 -->
-      <button @click="showPage('page1')">내 정보 수정</button>
-      <button @click="showPage('page2')">가입 상품 조회</button>
-      <button @click="showPage('page3')">과거 목표 조회</button>
+      <button class="sidebar-button" @click="showPage('page1')">내 정보 수정</button>
+      <button class="sidebar-button" @click="showPage('page2')">가입 상품 조회</button>
+      <button class="sidebar-button" @click="showPage('page3')">과거 목표 조회</button>
     </div>
 
     <!-- 오른쪽 내용 영역 -->
     <div class="content">
       <!-- 페이지 내용을 동적으로 표시 -->
-      <div v-if="currentPage === 'page1'">
+      <div v-if="currentPage === 'page1'" class="page-content">
         <h1>내 정보 수정</h1>
-        <h2>Modify Member Information</h2>
-        <form @submit.prevent="submitForm">
-          <label for="loginPw">New Password :</label>
-          <input type="password" id="loginPw" v-model="formData.loginPw">
-          <br>
-
-          <label for="lifeStage">New Life Stage :</label>
-          <select id="lifeStage" v-model="formData.lifeStage">
-            <option value="UNI">대학생</option>
-            <option value="NEW_JOB">사회 초년생</option>
-            <option value="NEW_WED">신혼 부부</option>
-            <option value="HAVE_CHILD">자녀 있음</option>
-            <option value="NO_CHILD">자녀 없음</option>
-            <option value="RETIR">은퇴</option>
-          </select>
-          <br>
-
-          <button type="submit">Update Information</button>
+        <h2>회원 정보 수정하기</h2>
+        <form @submit.prevent="submitForm" class="form">
+          <div class="form-group">
+            <label for="loginPw">새로운 비밀번호 :</label>
+            <input type="password" id="loginPw" v-model="formData.loginPw" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="loginPw">비밀번호 확인 :</label>
+            <input type="password" id="pwConfirm" v-model="pwConfirm" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="lifeStage">새로운 생애주기 :</label>
+            <select id="lifeStage" v-model="formData.lifeStage" class="form-select">
+              <option value="UNI">대학생</option>
+              <option value="NEW_JOB">사회 초년생</option>
+              <option value="NEW_WED">신혼 부부</option>
+              <option value="HAVE_CHILD">자녀 있음</option>
+              <option value="NO_CHILD">자녀 없음</option>
+              <option value="RETIR">은퇴</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">정보 업데이트</button>
         </form>
-        <div v-if="responseMessage">
+        <!-- 정보 업데이트가 어떻게 됐는지 보고 싶으면 아래 주석 해제 -->
+        <!-- <div v-if="responseMessage" class="response-message">
           <p>{{ responseMessage }}</p>
-        </div>
+        </div> -->
+        <br>
         <h2>회원 비활성화</h2>
-        <button @click="deactivateUser">사용자 비활성화</button>
-        <div v-if="responseMessageDeactivate">
+
+        <!-- 사용자 비활성화 버튼 -->
+        <button @click="confirmDeactivateUser" class="btn">사용자 비활성화</button>
+
+        <!-- 확인 대화상자 모달 -->
+        <div v-if="showConfirmModal" class="confirm-modal">
+          <div class="confirm-content">
+            <p>사용자를 비활성화 하시겠습니까?</p>
+            <div class="btn-group">
+              <button @click="deactivateUser" class="btn">확인</button>
+              <button @click="cancelDeactivate" class="btn">취소</button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- <button @click="deactivateUser" class="btn">사용자 비활성화</button> -->
+        <div v-if="responseMessageDeactivate" class="response-message">
           <p>{{ responseMessageDeactivate }}</p>
         </div>
       </div>
 
-      <div v-else-if="currentPage === 'page2'">
+      <div v-else-if="currentPage === 'page2'" class="page-content">
         <h1>목표와 가입 상품 조회</h1>
         <h2>{{ userData.fullName }} 님의 목표와 가입 상품</h2>
         <div v-if="userData.goals && userData.goals.length > 0">
           <div v-for="goal in userData.goals" :key="goal.goalId" class="goal-container">
+            <!-- goal ::::::::: {{ goal }} -->
             <h3>{{ goal.goalName }}</h3>
             <p>목표 금액: {{ goal.targetCost }}</p>
             <p>시작일: {{ formatDate(goal.startDate) }}</p>
@@ -58,13 +81,16 @@
         <p v-else>등록된 목표가 없습니다.</p>   
       </div>
 
-      <div v-else-if="currentPage === 'page3'">
+      <div v-else-if="currentPage === 'page3'" class="page-content">
         <h1>과거 목표 조회</h1>
         <div v-if="filteredGoals.length > 0">
-          <h2>목표 - 금액(원) - 시작일자 - 종료일자</h2>
           <ul>
             <li v-for="goal in filteredGoals" :key="goal.id">
-              <strong>{{ goal.goalName }}</strong> - {{ goal.targetCost | currencyFormat }} - {{ formatDate(goal.startDate) }} - {{ formatDate(goal.endDate) }}
+              <!-- goal ::::::::::: {{goal}} -->
+              <h3>{{ goal.goalName }}</h3> 
+              <p>금액: {{ goal.accumulatedBalance | currencyFormat }}</p>
+              <p>시작일자: {{ formatDate(goal.startDate) }}</p>
+              <p>종료일자: {{ formatDate(goal.endDate) }}</p>
             </li>
           </ul>
         </div>
@@ -83,28 +109,28 @@ import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    ...mapGetters(['getToken']), // Vuex의 getToken getter를 컴포넌트 내에서 사용 가능하게 등록
+    ...mapGetters(['getToken']),
     filteredGoals() {
-      // goals 배열에서 goalSt 값이 0인 데이터만 필터링하여 반환
       return this.goals.filter(goal => goal.goalSt === 1);
     }
   },
   filters: {
     currencyFormat(value) {
-      // 숫자를 통화 형식(달러)으로 변환하는 필터
       return `$${value.toFixed(2)}`;
     }
   },
   data() {
     return {
-      goals: [], // API로부터 받아온 목표 데이터
+      showConfirmModal: false,
+      goals: [],
+      pwConfirm: null,
       formData: {
         loginPw: null,
-        lifeStage: null // 기본 선택 값은 빈 문자열로 설정
+        lifeStage: null
       },
       responseMessage: null,
       responseMessageDeactivate: null,
-      currentPage: 'page1', // 초기 페이지 설정
+      currentPage: 'page1',
       userData: {
         userId: null,
         fullName: "",
@@ -117,7 +143,13 @@ export default {
     this.fetchGoalData();
   },
   methods: {
-    // 페이지를 변경하는 메서드
+    confirmDeactivateUser() {
+      this.showConfirmModal = true; // 확인 대화상자 모달 표시
+    },
+    cancelDeactivate() {
+      this.showConfirmModal = false; // 확인 대화상자 모달 숨김
+    },
+
     showPage(pageName) {
       this.currentPage = pageName;
     },
@@ -126,35 +158,25 @@ export default {
       const url = 'http://localhost:8080/goal/list'
       try {
         const token = this.getToken;
-
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: `${token}`, // HTTP 요청 헤더에 토큰 포함
-          }
-        });
-
-        this.goals = response.data.data; // API로부터 받은 데이터를 goals에 저장
+        const response = await axios.get(url, { headers: { Authorization: `${token}` } });
+        this.goals = response.data.data;
       } catch (error) {
         console.error('목표 조회 실패:', error);
       }
     },
 
     async submitForm() {
+      if (this.formData.loginPw !== this.pwConfirm) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
       const url = 'http://localhost:8080/user/modify';
-
       try {
         const token = this.getToken;
-        console.log(token); // 여기까진 잘 됨
-
-        const response = await axios.put(url, this.formData, {
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8',
-            Authorization: token, // Authorization 헤더에 토큰 직접 설정
-          }
-        });
-
-        // 서버로부터 응답 받은 메시지 표시
-        this.responseMessage = await response.data;
+        const response = await axios.put(url, this.formData, { headers: { 'Content-Type': 'application/json; charset=UTF-8', Authorization: token } });
+        this.responseMessage = response.data;
+        alert('정보가 수정되었습니다.');
+        window.location.reload(); // 페이지를 새로고침 - 폼에 입력되어 있는 내용을 없애기 위함
       } catch (error) {
         console.error('Failed to update information:', error);
         this.responseMessage = 'Failed to update information';
@@ -163,38 +185,24 @@ export default {
     
     async deactivateUser() {
       const url = 'http://localhost:8080/user/deactivate';
-
       try {
         const token = this.getToken;
-
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: `${token}`, // HTTP 요청 헤더에 토큰 포함
-          }
-        });
-        // 서버로부터 받은 응답 메시지 표시
-        this.responseMessageDeactivate = response.data.message; // 응답 데이터에서 필요한 정보를 추출하여 표시
+        const response = await axios.get(url, { headers: { Authorization: `${token}` } });
+        this.responseMessageDeactivate = response.data.message;
+        alert('사용자가 비활성화 되었습니다. 변경을 원하시면 고객 센터에 문의하세요');
       } catch (error) {
         console.error('사용자 비활성화 요청 실패:', error);
         this.responseMessageDeactivate = '사용자 비활성화 요청에 실패하였습니다.';
       }
+      this.showConfirmModal = false; // 확인 대화상자 모달 숨김
     },
 
     async fetchGoalData() {
       const url = 'http://localhost:8080/goal/product/list';
-
       try {
         const token = this.getToken;
-        console.log(token);
-
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: `${token}`, // HTTP 요청 헤더에 토큰 포함
-          }
-        });
-        // const data = await response.json();
+        const response = await axios.get(url, { headers: { Authorization: `${token}` } });
         this.userData = response.data.data;
-
       } catch (error) {
         console.error('사용자 목표 조회 중 오류 발생:', error);
       }
@@ -211,21 +219,79 @@ export default {
 <style scoped>
 .container {
   display: flex;
+  justify-content: space-between;
+  margin: 20px;
 }
 
 .sidebar {
-  width: 150px; /* 사이드 바의 너비 설정 */
+  width: 150px;
   padding: 20px;
-  border-right: 1px solid #ccc; /* 사이드 바 우측 테두리 추가 */
+  border-right: 1px solid #ccc;
 }
 
-.sidebar button {
+.sidebar-button {
   display: block;
   margin-bottom: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
 }
 
 .content {
+  flex: 1;
   padding: 20px;
-  flex: 1; /* 오른쪽 컨텐츠 영역이 남은 공간을 모두 차지하도록 설정 */
+}
+
+.page-content {
+  margin-bottom: 20px;
+}
+
+.form {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+}
+
+.form-select {
+  width: 100%;
+  padding: 8px;
+}
+
+.btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.response-message {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.goal-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 10px;
 }
 </style>

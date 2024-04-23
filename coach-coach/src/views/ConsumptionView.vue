@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>소비탭입니다!!!!!!!!!!</h1>
+    <h1>소비 관리 페이지입니다</h1>
     
     <h2>내 소비패턴 분석 ~ : {{ this.querySEQ }} </h2>
     
@@ -8,7 +8,7 @@
     <iframe
       :src="generateDashboardUrl"
       height="500"
-      width="60%"
+      width="100%"
       frameborder="0"
       allowfullscreen
     ></iframe>
@@ -22,7 +22,7 @@
     <iframe
       :src="generateDashboardCard"
       height="500"
-      width="60%"
+      width="100%"
       frameborder="0"
       allowfullscreen
     ></iframe>
