@@ -18,11 +18,11 @@ export default createStore({
   actions: {
     login({ commit }, { token }) {
       commit('setToken', token);
-      sessionStorage.setItem('token', token); // 로컬 스토리지에 토큰 저장
+      sessionStorage.setItem('token', token); // 세션 스토리지에 토큰 저장
     },
     logout({ commit }) {
       commit('clearToken');
-      sessionStorage.removeItem('token'); // 로컬 스토리지에서 토큰 제거
+      sessionStorage.removeItem('token'); // 세션 스토리지에서 토큰 제거
     },
     restoreToken({ commit }) {
       const token = sessionStorage.getItem('token');
