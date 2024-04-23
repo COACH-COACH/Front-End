@@ -8,6 +8,7 @@
             <li><router-link to="/main/goal">목표 관리</router-link></li>
             <li><router-link to="/main/payment">소비 관리</router-link></li>
             <li><router-link to="/main/product">금융 상품</router-link></li>
+            <li><router-link to="/main/news">추천 뉴스</router-link></li>
           </ul>
         </nav>
         <div class="user-actions">
