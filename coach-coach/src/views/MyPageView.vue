@@ -41,6 +41,7 @@
           <p>{{ responseMessageDeactivate }}</p>
         </div>
       </div>
+
       <div v-else-if="currentPage === 'page2'">
         <h1>목표와 가입 상품 조회</h1>
         <h2>{{ userData.fullName }} 님의 목표와 가입 상품</h2>
@@ -54,9 +55,9 @@
             <p>상품명: {{ goal.productName }}</p>
           </div>
         </div>
-        <p v-else>등록된 목표가 없습니다.</p>
-        
+        <p v-else>등록된 목표가 없습니다.</p>   
       </div>
+
       <div v-else-if="currentPage === 'page3'">
         <h1>과거 목표 조회</h1>
         <div v-if="filteredGoals.length > 0">
@@ -69,8 +70,9 @@
         </div>
         <div v-else>
           <p>완료된 목표가 없습니다.</p>
-        </div>
+        </div>   
       </div>
+
     </div>
   </div>
 </template>
@@ -192,7 +194,6 @@ export default {
         });
         // const data = await response.json();
         this.userData = response.data.data;
-        console.log(userData);
 
       } catch (error) {
         console.error('사용자 목표 조회 중 오류 발생:', error);
