@@ -20,7 +20,7 @@
         <h1>고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h1>
         <div class = "banner-container">
           <div class="banner" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
-          @click="goToProductDetail(clsuter.idPk)">
+          @click="goToProductDetail(cluster.idPk)">
             <div class="product-name"> {{ cluster.productName }} </div>
             <div class="interest-rate">최대금리 : {{ cluster.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ cluster.maturity }}개월</div>
