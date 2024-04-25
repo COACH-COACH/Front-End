@@ -100,6 +100,7 @@
       <button class="enroll-button" @click="goalModal">상품 가입하기</button>
       <RegisterModal v-if="showModal" 
         :goals="goals"
+        :goalsStatusMessage="goalsStatusMessage"
         :product = "product"
         @close="showModal = false">
       </RegisterModal>
@@ -111,7 +112,6 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-// import TestModal from '../components/TestModal.vue'
 import RegisterModal from '../components/RegisterModal.vue';
 
 export default {
@@ -131,6 +131,7 @@ export default {
     const router = useRouter();
     const product = ref({});
     const goals = ref([]);
+    const goalsStatusMessage = ref('');
     const showModal = ref(false);
 
     // productType, depositCycle 한글로 표시하기
@@ -170,12 +171,22 @@ export default {
         if (!response.ok) throw new Error('Failed to fetch product goals');
         
         const data = await response.json();
-        console.log("response data:", data);
-        goals.value = data.goals;
-        console.log(goals.value);
+        console.log("goal data:", data);
+        if (data.goals && data.goals.length > 0){
+          goalsStatusMessage.value = '';
+          goals.value = data.goals;
+          console.log("goalsStatusMessage: ", goalsStatusMessage)
+          console.log("goals value: ", goals.value);
+        } else {
+          goalsStatusMessage.value = data.message;
+          goals.value = [];
+          console.log("goalsStatusMessage: ", goalsStatusMessage)
+          console.log("goals value: ", goals.value);
+        }
         
       } catch (error) {
         console.error(error);
+        goalsStatusMessage.value = '목표 정보를 가져오는 데 실패했습니다.'
       }
     };
 
@@ -216,7 +227,8 @@ export default {
       translatedDepositCycle,
       showModal,
       goalModal,
-      goals
+      goals,
+      goalsStatusMessage
       // testModal
       // RegisterModal
     };
