@@ -1,36 +1,50 @@
 <template>
   <div class="modal-overlay" @click.self="closeModal">
     <div class="modal-container">
+      <!-- 상품 요약 설명 -->
+      <h2>가입하실 상품입니다✨</h2>
+      <div class="product-summary">
+        <h3>{{ product.productName }}</h3>
+        <p>최대 금리: {{ product.maxInterestRate }}</p>
+        <p>상품 유형: {{ translatedProductType }}</p>
+        <p>저축 방법: {{ translatedDepositCycle }}</p>
+      </div>
+
       <!-- 목표 선택 드롭다운 -->
       <div class="input-group">
         <label for="goal-select">연동하실 목표를 선택해 주세요</label>
-        
-          <select id="goal-select" v-model="selectedGoalId" v-if="goals && goals.length">
-            
+          <select id="goal-select" v-model="selectedGoalId" v-if="goals && goals.length > 0">
             <option v-for="goal in goals" :key="goal.goalId" :value="goal.goalId">
               목표명 : {{ goal.goalName }} <br>
               목표 금액 : {{ goal.targetCost ? `${goal.targetCost}원` : '목표 금액 없음' }} <br>
               목표 시작일 : {{ goal.startDate }} <br>
             </option>
           </select>
-        <p v-else>목표가 없습니다. 목표를 먼저 생성해 주세요.</p>
-        <!-- 목표 없을 때 목표 만드는 페이지로 이동하는 버튼 만들기 -->
+          
+          <p v-else>{{ goalsStatusMessage }}</p>
+          <!-- 목표 없을 때 목표 만드는 페이지로 이동하는 버튼 만들기 -->
+          <button v-if="goalsStatusMessage === '목표가 없습니다. 목표를 생성해 보세요!'" @click="goToGoalCreation">목표 생성하러 가기</button>
       </div>
 
       <!-- 예치금 입력 필드 -->
-      <div class="input-group">
+      <div class="input-group" v-if="(goals && goals.length > 0) && (product.productType === '적금' ||  product.productType === 'SAVINGS') && (product.depositCycle != '자유적립식' || product.depositCycle != 'FLEXIBLE') ">
         <label for="deposit-amount">정기 입금액:</label>
-        <input id="deposit-amount" type="number" v-model="depositAmount" placeholder="예치금을 입력하세요">
+        <input id="deposit-amount" type="number" v-model="depositAmount" placeholder="매달 입금하실 금액을 입력하세요">
+      </div>
+      
+      <div class="input-group" v-else-if="(goals && goals.length > 0) && (product.productType === '예금' || product.productType === 'DEPOSIT')">
+        <label for="deposit-amount">예치금:</label>
+        <input id="deposit-amount" type="number" v-model="depositAmount" placeholder="예금에 예치하실 금액을 입력하세요">
       </div>
 
       <!-- 첫 입금액 입력 필드 -->
-      <div class="input-group">
+      <div class="input-group" v-if="(goals && goals.length > 0)">
         <label for="first-deposit">첫 입금액:</label>
         <input id="first-deposit" type="number" v-model="firstDeposit" placeholder="첫 입금액을 입력하세요">
       </div>
 
       <!-- 가입하기 버튼 -->
-      <button class="submit-button" @click="registerProduct">가입하기</button>
+      <button class="submit-button" @click="registerProduct" v-if="(goals && goals.length > 0)">가입하기</button>
       <button @click="closeModal">닫기</button>
     </div>
   </div>
@@ -38,7 +52,7 @@
 
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, toRefs, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
@@ -46,17 +60,22 @@ export default {
   name: 'RegisterModal',
   props: {
     product: {
-      type: Array,
+      type: Object,
       required: true
     },
     goals: {
       type: Array,
       required: true
+    },
+    goalsStatusMessage: {
+      type: String,
+      default: ''
     }
   },
   created() {
     console.log(this.goals); // 모달이 생성될 때 현재 goals 배열을 로그
     console.log(this.product);
+    console.log(this.goalsStatusMessage);
   },
   methods: {
     closeModal() {
@@ -68,10 +87,23 @@ export default {
     const store = useStore(); // Vuex 스토어 사용
     const token = computed(() => store.getters.getToken); // Vuex getter 사용
     const router = useRouter();
-
     const selectedGoalId = ref(''); // 선택된 목표의 ID
     const depositAmount = ref(0); // 사용자가 입력한 예치금
     const firstDeposit = ref(0); // 사용자가 입력한 첫 입금액
+    const { product } = toRefs(props);
+
+    const translatedProductType = computed(() => {
+      if (product.value.productType === 'SAVINGS') return '적금';
+      if (product.value.productType === 'DEPOSIT') return '예금';
+      return product.value.productType; // 기본값이나 다른 타입 처리
+    });
+
+    const translatedDepositCycle = computed(() => {
+      if (product.value.depositCycle === 'FIXED') return '정액적립식';
+      if (product.value.depositCycle === 'FLEXIBLE') return '자유적립식';
+      if (product.value.depositCycle === 'HOLD') return '거치식';
+      return product.value.depositCycle; // 기본값이나 다른 타입 처리
+      });
 
     // 가입 상품 등록
     const registerProduct = async() => {
@@ -122,7 +154,9 @@ export default {
       selectedGoalId,
       depositAmount,
       firstDeposit,
-      registerProduct
+      registerProduct,
+      translatedProductType,
+      translatedDepositCycle
     };
   }
 };
@@ -139,12 +173,103 @@ export default {
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-container {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  width: fit-content;
+  width: 90%;
+  max-width: 500px;
+  transform: translateY(-20px);
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateY(0);
+  }
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #5b88fa;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #4677f8;
+}
+
+button:active {
+  background-color: #3b61d1;
+}
+
+.submit-button {
+  width: 100%;
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.product-summary {
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 30px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.product-summary h3 {
+  margin-top: 0;
+}
+
+.product-summary p {
+  margin: 5px 0;
+}
+
+/* 추가 버튼 스타일링 */
+button:not(.submit-button) {
+  background: none;
+  color: #5b88fa;
+  padding: 5px 10px;
+  border: 1px solid #5b88fa;
+}
+
+button:not(.submit-button):hover {
+  background: #5b88fa;
+  color: white;
+  border-color: #5b88fa;
 }
 </style>
