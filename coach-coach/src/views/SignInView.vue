@@ -75,7 +75,7 @@ export default {
 }
 
 .form-input {
-  width: 100%;
+  width: 93%;
   padding: 8px;
   font-size: 1rem;
 }

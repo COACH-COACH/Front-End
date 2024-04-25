@@ -16,14 +16,14 @@
       </div>
       <div class="form-group">
         <label for="sex">성별:</label>
-        <select id="sex" v-model="postData.sex" class="form-select">
+        <select id="sex" v-model="postData.sex" class="form-select" style="width:100%;">
           <option value="M">남성</option>
           <option value="F">여성</option>
         </select>
       </div>
       <div class="form-group">
         <label for="birthDate">생년월일:</label>
-        <datepicker
+        <datepicker style="width:98%; height: 3.6vh;"
           id="birthDate"
           v-model="postData.birthDate"
           :format="datePickerFormat"
@@ -38,7 +38,7 @@
       </div>
       <div class="form-group">
         <label for="lifeStage">생애 주기:</label>
-        <select id="lifeStage" v-model="postData.lifeStage" class="form-select">
+        <select id="lifeStage" v-model="postData.lifeStage" class="form-select" style="width:100%;">
           <option value="UNI">대학생</option>
           <option value="NEW_JOB">사회 초년생</option>
           <option value="NEW_WED">신혼 부부</option>
@@ -122,7 +122,7 @@ export default {
 
 .form-input,
 .form-select {
-  width: 100%;
+  width: 95%;
   padding: 8px;
   font-size: 1rem;
 }
