@@ -57,7 +57,6 @@
           </div>
         </div>
 
-
         <!-- <button @click="deactivateUser" class="btn">사용자 비활성화</button> -->
         <div v-if="responseMessageDeactivate" class="response-message">
           <p>{{ responseMessageDeactivate }}</p>
@@ -69,10 +68,10 @@
         <h2>{{ userData.fullName }} 님의 목표와 가입 상품</h2>
         <div v-if="userData.goals && userData.goals.length > 0">
           <div v-for="goal in userData.goals" :key="goal.goalId" class="goal-container">
-            <!-- goal ::::::::: {{ goal }} -->
+            <!-- 확인용 --><!-- goal ::::::::: {{ goal }} -->
             <h3>{{ goal.goalName }}</h3>
             <p>목표 금액: {{ goal.targetCost }}</p>
-            <p>시작일: {{ formatDate(goal.startDate) }}</p>
+            <p>시작일: {{ formatDate(goal.goalStartDate) }}</p>
             <p>목표 기간: {{ goal.goalPeriod }} 개월</p>
             <p>누적 금액: {{ goal.accumulatedBalance }}</p>
             <p>상품명: {{ goal.productName }}</p>
@@ -86,7 +85,7 @@
         <div v-if="filteredGoals.length > 0">
           <ul>
             <li v-for="goal in filteredGoals" :key="goal.id">
-              <!-- goal ::::::::::: {{goal}} -->
+              <!-- 확인용 --> <!-- goal ::::::::::: {{goal}} -->
               <h3>{{ goal.goalName }}</h3> 
               <p>금액: {{ goal.accumulatedBalance | currencyFormat }}</p>
               <p>시작일자: {{ formatDate(goal.startDate) }}</p>
