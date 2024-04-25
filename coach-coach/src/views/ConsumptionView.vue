@@ -26,11 +26,11 @@
     <h2>다음 분기 나의 소비는 이럴 것 같아요!</h2>
 
     <div v-if="loading">
-      <p>로딩 중...</p>
+      <p align="middle">로딩 중...</p>
     </div>
     <div v-else>
       <div v-if="adminResponse">
-        <p>예상 소비량은? : {{ adminResponse }}</p>
+        <p align="middle">예상 소비량은? : {{ adminResponse }}</p>
       </div>
     </div>
 
