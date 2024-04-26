@@ -11,7 +11,7 @@
         <div class = "banner-container">
           <div class="banner" v-for="item in itemRecommendations" :key="item.idPk" 
           @click="goToProductDetail(item.idPk)">
-            <div class="product-name"> {{ item.productName }} </div>
+            <div class="reco-product-name"> {{ item.productName }} </div>
             <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
           </div>
@@ -21,7 +21,7 @@
         <div class = "banner-container">
           <div class="banner" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
           @click="goToProductDetail(cluster.idPk)">
-            <div class="product-name"> {{ cluster.productName }} </div>
+            <div class="reco-product-name"> {{ cluster.productName }} </div>
             <div class="interest-rate">최대금리 : {{ cluster.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ cluster.maturity }}개월</div>
           </div>
@@ -33,7 +33,7 @@
         <div class = "banner-container">
           <div class="banner" v-for="item in itemRecommendations" :key="item.idPk"
           @click="goToProductDetail(item.idPk)">
-            <div class="product-name"> {{ item.productName }} </div>
+            <div class="reco-product-name"> {{ item.productName }} </div>
             <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
           </div>
@@ -45,7 +45,7 @@
         <div class = "banner-container">
           <div class="banner" v-for="statics in staticRecommendations" :key="statics.idPk"
           @click="goToProductDetail(statics.idPk)">
-            <div class="product-name"> {{ statics.productName }} </div>
+            <div class="reco-product-name"> {{ statics.productName }} </div>
             <div class="interest-rate">최대금리 : {{ statics.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ statics.maturity }}개월</div>
           </div>
@@ -183,7 +183,7 @@ export default {
   transform: translateY(-5px);
 }
 
-.product-name {
+.reco-product-name {
   background-color: #f5f5f5;
   padding: 12px 16px;
   margin: 0;
