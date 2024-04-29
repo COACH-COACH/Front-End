@@ -160,7 +160,7 @@ export default {
           console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
           return;
         }
-        const response = await fetch(`http://localhost:8080/product/connect`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/product/connect`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ export default {
           console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
           return;
         }
-        const response = await fetch(`http://localhost:8080/product/detail/${props.pid}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/product/detail/${props.pid}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

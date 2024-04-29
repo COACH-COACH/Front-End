@@ -165,7 +165,7 @@ export default {
         };
 
         const productId = typeof props.product.idPk === 'string' ? props.product.idPk : props.product.id;
-        const response = await fetch(`http://localhost:8080/product/register/${ productId }/${ selectedGoalId.value }`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/product/register/${ productId }/${ selectedGoalId.value }`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

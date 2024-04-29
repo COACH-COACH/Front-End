@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     async accessAdminPage() {
-      const url = 'http://localhost:8080/admin';
+      const url = process.env.VUE_APP_API_URL + '/admin';
 
       try {
         const token = this.getToken; // Vuex 스토어에서 토큰 가져오기

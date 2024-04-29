@@ -153,7 +153,7 @@ export default {
           return;
         }
 
-        const response = await fetch(`http://localhost:8080/product/search?page=${pagination.value.currentPage}&size=${pagination.value.pageSize}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/product/search?page=${pagination.value.currentPage}&size=${pagination.value.pageSize}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -154,7 +154,7 @@ export default {
     },
 
     async fetchGoals() {
-      const url = 'http://localhost:8080/goal/list'
+      const url = process.env.VUE_APP_API_URL + '/goal/list'
       try {
         const token = this.getToken;
         const response = await axios.get(url, { headers: { Authorization: `${token}` } });
@@ -169,7 +169,7 @@ export default {
         alert('비밀번호가 일치하지 않습니다.');
         return;
       }
-      const url = 'http://localhost:8080/user/modify';
+      const url = process.env.VUE_APP_API_URL + '/user/modify';
       try {
         const token = this.getToken;
         const response = await axios.put(url, this.formData, { headers: { 'Content-Type': 'application/json; charset=UTF-8', Authorization: token } });
@@ -183,7 +183,7 @@ export default {
     },
     
     async deactivateUser() {
-      const url = 'http://localhost:8080/user/deactivate';
+      const url = process.env.VUE_APP_API_URL + '/user/deactivate';
       try {
         const token = this.getToken;
         const response = await axios.get(url, { headers: { Authorization: `${token}` } });
@@ -197,7 +197,7 @@ export default {
     },
 
     async fetchGoalData() {
-      const url = 'http://localhost:8080/goal/product/list';
+      const url = process.env.VUE_APP_API_URL + '/goal/product/list';
       try {
         const token = this.getToken;
         const response = await axios.get(url, { headers: { Authorization: `${token}` } });

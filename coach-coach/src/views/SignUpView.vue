@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     async submitForm() {
-      const url = 'http://localhost:8080/user/join';
+      const url = process.env.VUE_APP_API_URL + '/user/join';
 
       try {
         const response = await fetch(url, {

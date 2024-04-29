@@ -84,7 +84,7 @@ export default {
     },
     // 뉴스 데이터를 API로부터 가져오는 함수
     async fetchNews() {
-      const url = 'http://localhost:8080/api/news/list'; // API URL
+      const url = process.env.VUE_APP_API_URL + '/api/news/list'; // API URL
 
       try {
         const token = this.getToken; // Vuex에서 토큰 가져오기
