@@ -1,5 +1,15 @@
 <template>
     <div class="goal">
-        <h1>This is an goal page</h1>
+        <GoalComponent/>
     </div>
 </template>
+
+<script>
+import GoalComponent from '../components/GoalAndProductComponent.vue'
+
+export default {
+    components: {
+        GoalComponent
+    }
+}
+</script>
