@@ -16,6 +16,7 @@
           목표를 달성했어요! 완료 버튼을 클릭해 목표를 종료할 수 있어요.
         </p>
       </div>
+      <!-- 상품 -->
       <div class="card">
         <div class="product-state">
           <div class="product-info">
@@ -34,15 +35,30 @@
           <p>시작일: {{ formatDate(goal.productStartDate) }}</p>
           <p>현재 금액: {{ numberFormat(goal.accumulatedBalance) }} | 목표 금액: {{ numberFormat(goal.targetCost) }}</p>
         </div>
-        <div class="details">
-          <div class="serial-number">
-            <h2>{{ goal.accountNum }}</h2>
-          </div>
-          <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress" :style="{ width: goal.goalRate + '%' }"></div>
+        <div class="serial-number">
+          <h2>{{ goal.accountNum }}</h2>
+        </div>
+        <!-- 진행률 바 -->
+        <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress" :style="{ width: goal.goalRate + '%' }">
+              <div class="progress-percentage">{{ goal.goalRate }}%</div>
             </div>
-            <div class="progress-percentage">달성률: {{ goal.goalRate }}%</div>
+          </div>
+        </div>
+        <!-- 실천방안 -->
+        <div v-if="goal.depositCycle === '자유적금'" :class="{'action-plan': true, 'null-plan': goal.actionPlan == null, 'non-null-plan': goal.actionPlan != null}">
+          <div v-if="goal.actionPlan == null">
+            <p>실천방안이 없어요. 실천방안 추가하러 갑시다.</p>
+          </div>
+          <div v-else>
+            <p class="action-plan-title">자유적금 실천방안</p>
+            {{ goal.actionPlan }} <br/>
+            금액: {{ numberFormat(goal.depositAmt) }} <br/>
+            <!-- {{ formatDate(goal.depositStartDate) }} <br/> -->
+            단위: {{ goal.depositAmtCycle }}일 마다 <br/>
+            누적 입금 횟수: {{ goal.totalCount }}회<br/>
+            마지막 입금일: {{ formatDate(goal.lastDepositDate) }}
           </div>
         </div>
       </div>
@@ -202,7 +218,7 @@ export default {
   flex-grow: 1;
 }
 
-.details .date-and-price {
+.date-and-price {
   display: flex;
   justify-content: space-between;
   margin-bottom: 12px;
@@ -214,27 +230,37 @@ export default {
 }
 
 .progress-bar-container {
-  position: relative;
-  padding-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .progress-bar {
   background: #e1e1e1;
-  border-radius: 6px;
+  border-radius: 10px;
   overflow: hidden;
+  position: relative; /* progress-percentage를 상대적으로 위치시키기 위함 */
+  flex-grow: 1;
 }
 
-.progress-bar .progress {
+.progress {
   background: #007bff;
-  height: 20px;
-  width: 0%;
+  height: 24px;
+  width: 0%; /* 실제 값은 Vue.js 바인딩을 통해 설정됩니다. */
+  position: relative;
+  z-index: 1;
 }
 
 .progress-percentage {
-  float: right;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 8px; /* 우측 가장자리와의 거리 */
+  color: white; /* 텍스트 색상을 흰색으로 변경 */
+  z-index: 2;
   font-size: 12px;
+  font-weight: bold; /* 가독성을 위해 글씨체를 굵게 설정 */
 }
 
 .actions {
@@ -251,6 +277,9 @@ export default {
   padding: 6px 12px;
   border-radius: 10px;
   font-size: 16px;
+}
+.complete:hover, .add-goal-btn:hover {
+  background-color: #0056b3; /* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
 }
 
 .actions button {
@@ -283,6 +312,28 @@ export default {
 p {
   margin-bottom: 0px;
   margin-top: 4px;
+}
+
+/* 자유적금일 때 실천방안의 상태에 따른 배경색 설정 */
+.action-plan {
+  margin-top: 16px;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+/* actionPlan이 null일 때 */
+.action-plan.null-plan {
+  background-color: #d9d9d9; /* 회색 배경 */
+}
+
+/* actionPlan이 null이 아닐 때 */
+.action-plan.non-null-plan {
+  background-color: #ffe8c3; /* 연노랑색 배경 */
+}
+
+.action-plan-title {
+  font-weight: bold;
+  margin-bottom: 4px;
 }
 
 </style>
