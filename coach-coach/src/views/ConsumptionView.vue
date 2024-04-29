@@ -71,7 +71,7 @@ export default {
   },
   methods: {
     async fetchELKDataUsingToken() {
-      const url = 'http://localhost:8080/user/data';
+      const url = process.env.VUE_APP_API_URL + '/user/data';
       const token = this.getToken;
 
       try {
@@ -92,7 +92,7 @@ export default {
     async accessAdminPage() {
       this.loading = true; // 로딩 상태 시작
 
-      const url = 'http://localhost:8080/user/invoke-flask';
+      const url = process.env.VUE_APP_API_URL + '/user/invoke-flask';
 
       try {
         const token = this.getToken; // Vuex 스토어에서 토큰 가져오기 // 새로고침하면 vuex 스토어에 문제 있나/.???

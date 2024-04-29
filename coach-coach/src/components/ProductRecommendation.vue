@@ -82,7 +82,7 @@ export default {
       this.$router.push({ name: 'productdetail', params: { pid:idPk }});
     },
     async fetchRecommendations() {
-      const url = 'http://localhost:8080/product/recommend'; // API의 URL을 여기에 입력하세요
+      const url = process.env.VUE_APP_API_URL + '/product/recommend'; // API의 URL을 여기에 입력하세요
 
       try {
         const token = this.getToken; // Vuex 스토어에서 토큰 가져오기

@@ -35,7 +35,7 @@ export default {
   },
   methods: {
     async login() {
-      const url = 'http://localhost:8080/login';
+      const url = process.env.VUE_APP_API_URL + '/login';
 
       const formData = new FormData();
       formData.append('loginId', this.loginId);
