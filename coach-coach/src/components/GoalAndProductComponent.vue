@@ -1,5 +1,6 @@
 <template>
   <div class="all">
+    <!-- <button @click="goalCompleteTest">폭죽 테스트</button> -->
     <div class="header-container">
       <div class="title">
         <h1>안녕하세요, {{ goalData.fullName }}님<br/>맞춤형 자산관리 서비스 코치코치입니다.</h1>
@@ -36,6 +37,8 @@
           </div>
           <div>
             <div class="actions">
+              <ConfettiExplosion v-if="confettiActive" :force="1" 
+              :colors="['#0067AC', '#20C4F4', '#0083CA', '#FEE101']"/> <!-- 폭죽 -->
               <button :class="{'goalState': true, 'complete': goal.goalRate >= 100}" @click="goal.goalRate >= 100 ? completeGoal(goal) : null">
                 {{ checkGoalStatus(goal.goalRate) }}
               </button>
@@ -84,9 +87,13 @@
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import ConfettiExplosion from "vue-confetti-explosion";
 
 export default {
   name: 'GoalComponent',
+  components: {
+    ConfettiExplosion
+  },
   props: {
     pid: {
       type: [String, Number],
@@ -103,6 +110,21 @@ export default {
       goals: []
     });
 
+    // 폭죽
+    const confettiActive = ref(false);
+
+    const triggerConfetti = () => {
+      confettiActive.value = true;
+      setTimeout(() => {
+        confettiActive.value = false;
+      }, 3000); // 3초 후에 폭죽 종료
+    };
+
+    const goalCompleteTest = () => {
+      triggerConfetti();
+    }
+
+    // 전체 목표 조회
     const fetchGoals = async () => {
       if (!token.value) {
         console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
@@ -148,6 +170,7 @@ export default {
       }
     };
 
+    // 목표 완료
     const completeGoal = async (goal) => {
       try {
         const response = await fetch(`${process.env.VUE_APP_API_URL}/goal/complete/${goal.goalId}` , {
@@ -159,12 +182,14 @@ export default {
         });
         if (!response.ok) throw new Error('목표 완료 실패');
         goalData.value.goals = goalData.value.goals.filter(item => item.goalId !== goal.goalId);
+        triggerConfetti(); // 폭죽 활성화
       } catch (error) {
         console.error('목표 완료 실패', error);
         alert('목표 완료 중 오류가 발생했습니다.');
       }
     };
 
+    // 목표 제거
     const confirmDeletion = async (goal) => {
       if (goal.productName === null) {
         if (window.confirm('정말 삭제하시겠습니까?')) {
@@ -193,7 +218,7 @@ export default {
     
     onMounted(fetchGoals);
 
-    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion };
+    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion, confettiActive, goalCompleteTest };
   }
 };
 </script>
