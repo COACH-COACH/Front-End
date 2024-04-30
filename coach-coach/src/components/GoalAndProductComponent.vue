@@ -6,21 +6,28 @@
       </div> 
       <button @click="addGoal" class="add-goal-btn">목표 추가</button>
     </div>
+
+    <!-- 목표 리스트 -->
     <div v-for="goal in goalData.goals" :key="goal.goalId" class="goal-component">
       <div class="goal-header">
-        <h2>{{ goal.goalName }}</h2>
-        <p class="start-date detail-text">목표 생성일: {{ formatDate(goal.goalStartDate) }}</p>
+        <div class="goal-name-and-date">
+          <h2>{{ goal.goalName }}</h2>
+          <p class="start-date detail-text">목표 생성일: {{ formatDate(goal.goalStartDate) }}</p>
+        </div>
+        <font-awesome-icon class="icon-delete" :icon="['fas', 'square-minus']" @click="confirmDeletion(goal)" />
       </div>
       <div>
         <p v-if="goal.goalRate >= 100" class="completion-message">
           목표를 달성했어요! 완료 버튼을 클릭해 목표를 종료할 수 있어요.
         </p>
       </div>
+
       <!-- 상품 등록 X -->
       <div v-if="goal.productName === null" class="card no-product">
         <p>목표에 추가된 금융상품이 없어요. 추가하시겠어요?</p>
         <button @click="addProduct">추가하러 가기 &rarr;</button>
       </div>
+
       <!-- 상품 등록 O -->
       <div v-else class="card">
         <div class="product-state">
@@ -43,6 +50,7 @@
         <div class="serial-number">
           <h2>{{ goal.accountNum }}</h2>
         </div>
+
         <!-- 진행률 바 -->
         <div class="progress-bar-container">
           <div class="progress-bar">
@@ -51,6 +59,7 @@
             </div>
           </div>
         </div>
+
         <!-- 실천방안 -->
         <div v-if="goal.depositCycle === '자유적금'" :class="{'action-plan': true, 'null-plan': goal.actionPlan == null, 'non-null-plan': goal.actionPlan != null}">
           <div v-if="goal.actionPlan == null">
@@ -138,10 +147,33 @@ export default {
         router.push('/main/goal/new');
       }
     };
+
+    const confirmDeletion = async (goal) => {
+      if (goal.productName === null) {
+        if (window.confirm('정말 삭제하시겠습니까?')) {
+          try {
+            const response = await fetch(`${process.env.VUE_APP_API_URL}/goal/${goal.goalId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${token.value}`
+              }
+            });
+            if (!response.ok) throw new Error('Deletion failed');
+            // TODO: 삭제 후 UI 업데이트
+          } catch (error) {
+            console.error('목표 제거 실패:', error);
+            alert('목표를 삭제하는 중 오류가 발생했습니다.');
+          }
+        }
+      } else {
+        alert('상품을 추가한 목표는 삭제할 수 없어요');
+      }
+    };
     
     onMounted(fetchGoals);
 
-    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal };
+    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, confirmDeletion };
   }
 };
 </script>
@@ -182,14 +214,31 @@ export default {
 
 .goal-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   background-color: transparent;
+  justify-content: space-between;
   box-shadow: none;
+}
+
+.goal-name-and-date {
+  display: flex;
+  align-items: flex-end;
 }
 
 .goal-header h2, .goal-header p {
   margin-top: 0;    /* 상단 마진 제거 */
   margin-bottom: 0; /* 하단 마진 제거 */
+}
+
+.icon-delete {
+  font-size: 1.6em; /* 아이콘 크기 키우기 */
+  margin-right: 8px; /* 오른쪽 여백 추가 */
+  color: rgb(197, 202, 218); /* 아이콘 색상 설정 */
+}
+
+.icon-delete:hover {
+  color: rgb(167, 173, 190);
+  cursor: pointer;
 }
 
 .completion-message {
@@ -286,7 +335,7 @@ export default {
   font-size: 16px;
 }
 .complete:hover, .add-goal-btn:hover {
-  background-color: #0056b3; /* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
+  background-color: #0056b3 !important;/* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
 }
 
 .actions button {
