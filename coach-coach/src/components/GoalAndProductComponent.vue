@@ -36,7 +36,7 @@
           </div>
           <div>
             <div class="actions">
-              <button :class="{'goalState': true, 'complete': goal.goalRate >= 100}" @click="goal.goalRate >= 100 ? clickHandler : null">
+              <button :class="{'goalState': true, 'complete': goal.goalRate >= 100}" @click="goal.goalRate >= 100 ? completeGoal(goal) : null">
                 {{ checkGoalStatus(goal.goalRate) }}
               </button>
               <button class="productType">{{ goal.depositCycle }}</button>
@@ -148,6 +148,23 @@ export default {
       }
     };
 
+    const completeGoal = async (goal) => {
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/goal/complete/${goal.goalId}` , {
+          method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${token.value}`
+              }
+        });
+        if (!response.ok) throw new Error('목표 완료 실패');
+        goalData.value.goals = goalData.value.goals.filter(item => item.goalId !== goal.goalId);
+      } catch (error) {
+        console.error('목표 완료 실패', error);
+        alert('목표 완료 중 오류가 발생했습니다.');
+      }
+    };
+
     const confirmDeletion = async (goal) => {
       if (goal.productName === null) {
         if (window.confirm('정말 삭제하시겠습니까?')) {
@@ -176,7 +193,7 @@ export default {
     
     onMounted(fetchGoals);
 
-    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, confirmDeletion };
+    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion };
   }
 };
 </script>
