@@ -159,8 +159,11 @@ export default {
                 'Authorization': `${token.value}`
               }
             });
-            if (!response.ok) throw new Error('Deletion failed');
-            // TODO: 삭제 후 UI 업데이트
+            if (!response.ok) throw new Error('목표 제거 실패');
+
+            // 삭제 성공 시: 삭제된 목표를 제외한 새로운 배열 생성 -> Vue.js의 반응성 활용
+            goalData.value.goals = goalData.value.goals.filter(item => item.goalId !== goal.goalId);
+
           } catch (error) {
             console.error('목표 제거 실패:', error);
             alert('목표를 삭제하는 중 오류가 발생했습니다.');
