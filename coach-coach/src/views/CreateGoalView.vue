@@ -54,8 +54,35 @@ export default {
       selectedGoal.value = selectedGoal.value === category.goalName ? '' : category.goalName;
     };
 
-    const startGoal = () => {
+    // 목표 생성
+    const startGoal = async () => {
       console.log('Selected Goal:', selectedGoal.value);
+
+      try {
+        const response = await fetch(process.env.VUE_APP_API_URL + '/goal/regist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${token.value}`
+          },
+          body: JSON.stringify({
+            goalName: selectedGoal.value
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log('Goal registration successful:', result);
+          window.history.back(); // 성공적으로 목표를 등록한 후 이전 페이지로 돌아감
+        } else {
+          console.error('Goal registration failed:', result);
+          alert('목표 등록에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+        alert('네트워크 오류가 발생했습니다.');
+      }
     };
 
     return {
