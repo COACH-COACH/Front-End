@@ -56,8 +56,6 @@ export default {
 
     // 목표 생성
     const startGoal = async () => {
-      console.log('Selected Goal:', selectedGoal.value);
-
       try {
         const response = await fetch(process.env.VUE_APP_API_URL + '/goal/regist', {
           method: 'POST',
@@ -127,11 +125,16 @@ export default {
 
 .create-button {
   margin-top: 32px;
-  background-color: rgb(34, 66, 164);
+  background-color: rgb(58, 93, 198);
   border: 1px solid #ccc;
   padding: 10px 100px 10px 100px;
   color: white;
   border-radius: 15px;
+}
+
+.create-button:hover {
+  cursor: pointer;
+  background-color: rgb(34, 66, 164);
 }
 
 .selected {
