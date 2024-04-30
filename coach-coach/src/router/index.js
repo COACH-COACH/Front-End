@@ -9,6 +9,7 @@ import TokenStoringTestView from '@/views/TokenStoringTestView.vue'
 import ConsumptionView from '@/views/ConsumptionView.vue'
 import ProductDetailView from '@/views/ProductDetailView.vue'
 import CardNewsView from '@/views/CardNewsView.vue'
+import CreateGoalView from '@/views/CreateGoalView.vue'
 
 
 const routes = [
@@ -26,6 +27,11 @@ const routes = [
     path: '/main/goal',
     name: 'goal',
     component: GoalView
+  },
+  {
+    path: '/main/goal/new',
+    name: 'newGoal',
+    component: CreateGoalView
   },
   {
     path: '/main/mypage',
