@@ -4,7 +4,7 @@
       <div class="title">
         <h1>안녕하세요, {{ goalData.fullName }}님<br/>맞춤형 자산관리 서비스 코치코치입니다.</h1>
       </div> 
-      <button v-if="goalData.goals.length < 3" @click="addGoal" class="add-goal-btn">목표 추가</button>
+      <button @click="addGoal" class="add-goal-btn">목표 추가</button>
     </div>
     <div v-for="goal in goalData.goals" :key="goal.goalId" class="goal-component">
       <div class="goal-header">
@@ -16,8 +16,13 @@
           목표를 달성했어요! 완료 버튼을 클릭해 목표를 종료할 수 있어요.
         </p>
       </div>
-      <!-- 상품 -->
-      <div class="card">
+      <!-- 상품 등록 X -->
+      <div v-if="goal.productName === null" class="card no-product">
+        <p>목표에 추가된 금융상품이 없어요. 추가하시겠어요?</p>
+        <button @click="addProduct">추가하러 가기 &rarr;</button>
+      </div>
+      <!-- 상품 등록 O -->
+      <div v-else class="card">
         <div class="product-state">
           <div class="product-info">
             <div class="product-name">{{ goal.productName }}</div>
