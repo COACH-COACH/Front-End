@@ -1,30 +1,45 @@
 <template>
   <div class="all">
+    <!-- <button @click="goalCompleteTest">폭죽 테스트</button> -->
     <div class="header-container">
       <div class="title">
         <h1>안녕하세요, {{ goalData.fullName }}님<br/>맞춤형 자산관리 서비스 코치코치입니다.</h1>
       </div> 
-      <button v-if="goalData.goals.length < 3" @click="addGoal" class="add-goal-btn">목표 추가</button>
+      <button @click="addGoal" class="add-goal-btn">목표 추가</button>
     </div>
+
+    <!-- 목표 리스트 -->
     <div v-for="goal in goalData.goals" :key="goal.goalId" class="goal-component">
       <div class="goal-header">
-        <h2>{{ goal.goalName }}</h2>
-        <p class="start-date detail-text">목표 생성일: {{ formatDate(goal.goalStartDate) }}</p>
+        <div class="goal-name-and-date">
+          <h2>{{ goal.goalName }}</h2>
+          <p class="start-date detail-text">목표 생성일: {{ formatDate(goal.goalStartDate) }}</p>
+        </div>
+        <font-awesome-icon class="icon-delete" :icon="['fas', 'square-minus']" @click="confirmDeletion(goal)" />
       </div>
       <div>
         <p v-if="goal.goalRate >= 100" class="completion-message">
           목표를 달성했어요! 완료 버튼을 클릭해 목표를 종료할 수 있어요.
         </p>
       </div>
-      <!-- 상품 -->
-      <div class="card">
+
+      <!-- 상품 등록 X -->
+      <div v-if="goal.productName === null" class="card no-product">
+        <p>목표에 추가된 금융상품이 없어요. 추가하시겠어요?</p>
+        <button class="create-product" @click="addProduct">상품 추가하기</button>
+      </div>
+
+      <!-- 상품 등록 O -->
+      <div v-else class="card">
         <div class="product-state">
           <div class="product-info">
             <div class="product-name">{{ goal.productName }}</div>
           </div>
           <div>
             <div class="actions">
-              <button :class="{'goalState': true, 'complete': goal.goalRate >= 100}" @click="goal.goalRate >= 100 ? clickHandler : null">
+              <ConfettiExplosion v-if="confettiActive" :force="1" 
+              :colors="['#0067AC', '#20C4F4', '#0083CA', '#FEE101']"/> <!-- 폭죽 -->
+              <button :class="{'goalState': true, 'complete': goal.goalRate >= 100}" @click="goal.goalRate >= 100 ? completeGoal(goal) : null">
                 {{ checkGoalStatus(goal.goalRate) }}
               </button>
               <button class="productType">{{ goal.depositCycle }}</button>
@@ -38,6 +53,7 @@
         <div class="serial-number">
           <h2>{{ goal.accountNum }}</h2>
         </div>
+
         <!-- 진행률 바 -->
         <div class="progress-bar-container">
           <div class="progress-bar">
@@ -46,6 +62,7 @@
             </div>
           </div>
         </div>
+
         <!-- 실천방안 -->
         <div v-if="goal.depositCycle === '자유적금'" :class="{'action-plan': true, 'null-plan': goal.actionPlan == null, 'non-null-plan': goal.actionPlan != null}">
           <div v-if="goal.actionPlan == null">
@@ -69,9 +86,14 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import ConfettiExplosion from "vue-confetti-explosion";
 
 export default {
   name: 'GoalComponent',
+  components: {
+    ConfettiExplosion
+  },
   props: {
     pid: {
       type: [String, Number],
@@ -80,6 +102,7 @@ export default {
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
     const token = computed(() => store.getters.getToken);
     const goalData = ref({
       userId: '',
@@ -87,6 +110,21 @@ export default {
       goals: []
     });
 
+    // 폭죽
+    const confettiActive = ref(false);
+
+    const triggerConfetti = () => {
+      confettiActive.value = true;
+      setTimeout(() => {
+        confettiActive.value = false;
+      }, 3000); // 3초 후에 폭죽 종료
+    };
+
+    const goalCompleteTest = () => {
+      triggerConfetti();
+    }
+
+    // 전체 목표 조회
     const fetchGoals = async () => {
       if (!token.value) {
         console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
@@ -128,13 +166,59 @@ export default {
       if (goalData.value.goals.length >= 3) {
         alert('목표는 3개까지만 생성이 가능합니다.');
       } else {
-        // TODO: 목표 추가 로직
+        router.push('/main/goal/new');
+      }
+    };
+
+    // 목표 완료
+    const completeGoal = async (goal) => {
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/goal/complete/${goal.goalId}` , {
+          method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${token.value}`
+              }
+        });
+        if (!response.ok) throw new Error('목표 완료 실패');
+        goalData.value.goals = goalData.value.goals.filter(item => item.goalId !== goal.goalId);
+        triggerConfetti(); // 폭죽 활성화
+      } catch (error) {
+        console.error('목표 완료 실패', error);
+        alert('목표 완료 중 오류가 발생했습니다.');
+      }
+    };
+
+    // 목표 제거
+    const confirmDeletion = async (goal) => {
+      if (goal.productName === null) {
+        if (window.confirm('정말 삭제하시겠습니까?')) {
+          try {
+            const response = await fetch(`${process.env.VUE_APP_API_URL}/goal/${goal.goalId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${token.value}`
+              }
+            });
+            if (!response.ok) throw new Error('목표 제거 실패');
+
+            // 삭제 성공 시: 삭제된 목표를 제외한 새로운 배열 생성 -> Vue.js의 반응성 활용
+            goalData.value.goals = goalData.value.goals.filter(item => item.goalId !== goal.goalId);
+
+          } catch (error) {
+            console.error('목표 제거 실패:', error);
+            alert('목표를 삭제하는 중 오류가 발생했습니다.');
+          }
+        }
+      } else {
+        alert('상품을 추가한 목표는 삭제할 수 없어요');
       }
     };
     
     onMounted(fetchGoals);
 
-    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal };
+    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion, confettiActive, goalCompleteTest };
   }
 };
 </script>
@@ -175,14 +259,31 @@ export default {
 
 .goal-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   background-color: transparent;
+  justify-content: space-between;
   box-shadow: none;
+}
+
+.goal-name-and-date {
+  display: flex;
+  align-items: flex-end;
 }
 
 .goal-header h2, .goal-header p {
   margin-top: 0;    /* 상단 마진 제거 */
   margin-bottom: 0; /* 하단 마진 제거 */
+}
+
+.icon-delete {
+  font-size: 1.6em; /* 아이콘 크기 키우기 */
+  margin-right: 8px; /* 오른쪽 여백 추가 */
+  color: rgb(197, 202, 218); /* 아이콘 색상 설정 */
+}
+
+.icon-delete:hover {
+  color: rgb(167, 173, 190);
+  cursor: pointer;
 }
 
 .completion-message {
@@ -269,7 +370,7 @@ export default {
 }
 
 /* 상품이 완료 상태일 때 */
-.complete, .add-goal-btn {
+.complete, .add-goal-btn, .create-product {
   border: transparent !important;
   background: #007bff !important;
   color: white !important;
@@ -278,8 +379,12 @@ export default {
   border-radius: 10px;
   font-size: 16px;
 }
-.complete:hover, .add-goal-btn:hover {
-  background-color: #0056b3; /* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
+.complete:hover, .add-goal-btn:hover, .create-product:hover {
+  background-color: #0056b3 !important;/* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
+}
+
+.create-product {
+  margin-top: 12px;
 }
 
 .actions button {
