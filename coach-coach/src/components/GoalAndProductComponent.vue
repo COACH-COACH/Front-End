@@ -26,7 +26,7 @@
       <!-- 상품 등록 X -->
       <div v-if="goal.productName === null" class="card no-product">
         <p>목표에 추가된 금융상품이 없어요. 추가하시겠어요?</p>
-        <button @click="addProduct">추가하러 가기 &rarr;</button>
+        <button class="create-product" @click="addProduct">상품 추가하기</button>
       </div>
 
       <!-- 상품 등록 O -->
@@ -370,7 +370,7 @@ export default {
 }
 
 /* 상품이 완료 상태일 때 */
-.complete, .add-goal-btn {
+.complete, .add-goal-btn, .create-product {
   border: transparent !important;
   background: #007bff !important;
   color: white !important;
@@ -379,8 +379,12 @@ export default {
   border-radius: 10px;
   font-size: 16px;
 }
-.complete:hover, .add-goal-btn:hover {
+.complete:hover, .add-goal-btn:hover, .create-product:hover {
   background-color: #0056b3 !important;/* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
+}
+
+.create-product {
+  margin-top: 12px;
 }
 
 .actions button {
