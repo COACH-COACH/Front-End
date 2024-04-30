@@ -69,6 +69,7 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'GoalComponent',
@@ -80,6 +81,7 @@ export default {
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
     const token = computed(() => store.getters.getToken);
     const goalData = ref({
       userId: '',
@@ -128,7 +130,7 @@ export default {
       if (goalData.value.goals.length >= 3) {
         alert('목표는 3개까지만 생성이 가능합니다.');
       } else {
-        // TODO: 목표 추가 로직
+        router.push('/main/goal/new');
       }
     };
     
