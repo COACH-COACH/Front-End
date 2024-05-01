@@ -3,8 +3,8 @@
     <!-- <button @click="goalCompleteTest">폭죽 테스트</button> -->
     <div class="header-container">
       <div class="title">
-        <h1>안녕하세요, {{ goalData.fullName }}님<br/>맞춤형 자산관리 서비스 코치코치입니다.</h1>
-      </div> 
+        <h1>안녕하세요, {{ goalData.fullName }}님<br />맞춤형 자산관리 서비스 코치코치입니다.</h1>
+      </div>
       <button @click="addGoal" class="add-goal-btn">목표 추가</button>
     </div>
 
@@ -22,61 +22,77 @@
           목표를 달성했어요! 완료 버튼을 클릭해 목표를 종료할 수 있어요.
         </p>
       </div>
-
-      <!-- 상품 등록 X -->
-      <div v-if="goal.productName === null" class="card no-product">
-        <p>목표에 추가된 금융상품이 없어요. 추가하시겠어요?</p>
-        <button class="create-product" @click="addProduct">상품 추가하기</button>
-      </div>
-
-      <!-- 상품 등록 O -->
-      <div v-else class="card">
-        <div class="product-state">
-          <div class="product-info">
-            <div class="product-name">{{ goal.productName }}</div>
+      <!-- 목표 연동 상품 & 목표 통계량 -->
+      <div class="goal-contents">
+        <!-- 상품 -->
+        <div class="product-container item">
+          <!-- 상품 등록 X -->
+          <div v-if="goal.productName === null" class="card no-product">
+            <p>목표에 추가된 금융상품이 없어요. 추가하시겠어요?</p>
+            <button class="create-product" @click="addProduct">상품 추가하기</button>
           </div>
-          <div>
-            <div class="actions">
-              <ConfettiExplosion v-if="confettiActive" :force="1" 
-              :colors="['#0067AC', '#20C4F4', '#0083CA', '#FEE101']"/> <!-- 폭죽 -->
-              <button :class="{'goalState': true, 'complete': goal.goalRate >= 100}" @click="goal.goalRate >= 100 ? completeGoal(goal) : null">
-                {{ checkGoalStatus(goal.goalRate) }}
-              </button>
-              <button class="productType">{{ goal.depositCycle }}</button>
+
+          <!-- 상품 등록 O -->
+          <div v-else class="card">
+            <div class="product-state">
+              <div class="product-info">
+                <div class="product-name">{{ goal.productName }}</div>
+              </div>
+              <div>
+                <div class="actions">
+                  <ConfettiExplosion v-if="confettiActive" :force="1"
+                    :colors="['#0067AC', '#20C4F4', '#0083CA', '#FEE101']" /> <!-- 폭죽 -->
+                  <button :class="{ 'goalState': true, 'complete': goal.goalRate >= 100 }"
+                    @click="goal.goalRate >= 100 ? completeGoal(goal) : null">
+                    {{ checkGoalStatus(goal.goalRate) }}
+                  </button>
+                  <button class="productType">{{ goal.depositCycle }}</button>
+                </div>
+              </div>
+            </div>
+            <div class="detail-text">
+              <p>시작일: {{ formatDate(goal.productStartDate) }}</p>
+              <p>현재 금액: {{ numberFormat(goal.accumulatedBalance) }} | 목표 금액: {{ numberFormat(goal.targetCost) }}</p>
+            </div>
+            <div class="serial-number">
+              <h2>{{ goal.accountNum }}</h2>
+            </div>
+
+            <!-- 진행률 바 -->
+            <div class="progress-bar-container">
+              <div class="progress-bar">
+                <div class="progress" :style="{ width: goal.goalRate + '%' }">
+                  <div class="progress-percentage">{{ goal.goalRate }}%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 실천방안 -->
+            <div v-if="goal.depositCycle === '자유적금'"
+              :class="{ 'action-plan': true, 'null-plan': goal.actionPlan == null, 'non-null-plan': goal.actionPlan != null }">
+              <div v-if="goal.actionPlan == null">
+                <p>실천방안이 없어요. 실천방안 추가하러 갑시다.</p>
+              </div>
+              <div v-else>
+                <p class="action-plan-title">자유적금 실천방안</p>
+                {{ goal.actionPlan }} <br />
+                금액: {{ numberFormat(goal.depositAmt) }} <br />
+                <!-- {{ formatDate(goal.depositStartDate) }} <br/> -->
+                단위: {{ goal.depositAmtCycle }}일 마다 <br />
+                누적 입금 횟수: {{ goal.totalCount }}회<br />
+                마지막 입금일: {{ formatDate(goal.lastDepositDate) }}
+              </div>
             </div>
           </div>
         </div>
-        <div class="detail-text">
-          <p>시작일: {{ formatDate(goal.productStartDate) }}</p>
-          <p>현재 금액: {{ numberFormat(goal.accumulatedBalance) }} | 목표 금액: {{ numberFormat(goal.targetCost) }}</p>
-        </div>
-        <div class="serial-number">
-          <h2>{{ goal.accountNum }}</h2>
-        </div>
 
-        <!-- 진행률 바 -->
-        <div class="progress-bar-container">
-          <div class="progress-bar">
-            <div class="progress" :style="{ width: goal.goalRate + '%' }">
-              <div class="progress-percentage">{{ goal.goalRate }}%</div>
-            </div>
+        <!-- 통계량 -->
+        <div class="statistics item">
+          <div class="card">
+            <p>고객님과 같은 생애주기에 있는 {{ goal.goalStat.proportion.toFixed(1) }}%가 해당 목표를 향해 달려가고 있어요</p>
+            <p>해당 목표로 모인 평균 금액은 {{ numberFormat(goal.goalStat.avgAmt) }} 입니다.</p>
           </div>
-        </div>
 
-        <!-- 실천방안 -->
-        <div v-if="goal.depositCycle === '자유적금'" :class="{'action-plan': true, 'null-plan': goal.actionPlan == null, 'non-null-plan': goal.actionPlan != null}">
-          <div v-if="goal.actionPlan == null">
-            <p>실천방안이 없어요. 실천방안 추가하러 갑시다.</p>
-          </div>
-          <div v-else>
-            <p class="action-plan-title">자유적금 실천방안</p>
-            {{ goal.actionPlan }} <br/>
-            금액: {{ numberFormat(goal.depositAmt) }} <br/>
-            <!-- {{ formatDate(goal.depositStartDate) }} <br/> -->
-            단위: {{ goal.depositAmtCycle }}일 마다 <br/>
-            누적 입금 횟수: {{ goal.totalCount }}회<br/>
-            마지막 입금일: {{ formatDate(goal.lastDepositDate) }}
-          </div>
         </div>
       </div>
     </div>
@@ -173,12 +189,12 @@ export default {
     // 목표 완료
     const completeGoal = async (goal) => {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/goal/complete/${goal.goalId}` , {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/goal/complete/${goal.goalId}`, {
           method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `${token.value}`
-              }
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${token.value}`
+          }
         });
         if (!response.ok) throw new Error('목표 완료 실패');
         goalData.value.goals = goalData.value.goals.filter(item => item.goalId !== goal.goalId);
@@ -215,7 +231,7 @@ export default {
         alert('상품을 추가한 목표는 삭제할 수 없어요');
       }
     };
-    
+
     onMounted(fetchGoals);
 
     return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion, confettiActive, goalCompleteTest };
@@ -237,7 +253,8 @@ export default {
 }
 
 .title h1 {
-  margin-bottom: 0; /* 필요한 경우 h2의 마진 조정 */
+  margin-bottom: 0;
+  /* 필요한 경우 h2의 마진 조정 */
 }
 
 .add-goal-btn {
@@ -246,10 +263,13 @@ export default {
 
 .header-container {
   display: flex;
-  align-items: flex-end; /* 요소들의 하단을 서로 맞춤 */
-  justify-content: space-between; /* 요소들을 양 끝으로 분산 배치 */
+  align-items: flex-end;
+  /* 요소들의 하단을 서로 맞춤 */
+  justify-content: space-between;
+  /* 요소들을 양 끝으로 분산 배치 */
 }
 
+/* 목표 컨테이너 */
 .goal-component {
   background: #f0f4f8;
   padding: 16px;
@@ -270,15 +290,21 @@ export default {
   align-items: flex-end;
 }
 
-.goal-header h2, .goal-header p {
-  margin-top: 0;    /* 상단 마진 제거 */
-  margin-bottom: 0; /* 하단 마진 제거 */
+.goal-header h2,
+.goal-header p {
+  margin-top: 0;
+  /* 상단 마진 제거 */
+  margin-bottom: 0;
+  /* 하단 마진 제거 */
 }
 
 .icon-delete {
-  font-size: 1.6em; /* 아이콘 크기 키우기 */
-  margin-right: 8px; /* 오른쪽 여백 추가 */
-  color: rgb(197, 202, 218); /* 아이콘 색상 설정 */
+  font-size: 1.6em;
+  /* 아이콘 크기 키우기 */
+  margin-right: 8px;
+  /* 오른쪽 여백 추가 */
+  color: rgb(197, 202, 218);
+  /* 아이콘 색상 설정 */
 }
 
 .icon-delete:hover {
@@ -291,6 +317,23 @@ export default {
   font-size: 14px;
 }
 
+/* 목표 연결 상품 & 목표 통계량 */
+.goal-contents {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.goal-contents>.item {
+  flex: 1;
+  /* 모든 .item 요소가 동일한 공간을 차지하도록 설정 */
+}
+
+.product-container {
+  margin-right: 10px;
+}
+
+/* 상품 */
 .start-date {
   margin-left: 8px;
   padding-bottom: 2px;
@@ -307,7 +350,8 @@ export default {
   background: white;
   padding: 20px;
   border-radius: 6px;
-  border: transparent; /* 테두리 */
+  border: transparent;
+  /* 테두리 */
   margin-top: 12px;
 }
 
@@ -340,14 +384,16 @@ export default {
   background: #e1e1e1;
   border-radius: 10px;
   overflow: hidden;
-  position: relative; /* progress-percentage를 상대적으로 위치시키기 위함 */
+  position: relative;
+  /* progress-percentage를 상대적으로 위치시키기 위함 */
   flex-grow: 1;
 }
 
 .progress {
   background: #007bff;
   height: 24px;
-  width: 0%; /* 실제 값은 Vue.js 바인딩을 통해 설정됩니다. */
+  width: 0%;
+  /* 실제 값은 Vue.js 바인딩을 통해 설정됩니다. */
   position: relative;
   z-index: 1;
 }
@@ -357,11 +403,14 @@ export default {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  margin-right: 8px; /* 우측 가장자리와의 거리 */
-  color: white; /* 텍스트 색상을 흰색으로 변경 */
+  margin-right: 8px;
+  /* 우측 가장자리와의 거리 */
+  color: white;
+  /* 텍스트 색상을 흰색으로 변경 */
   z-index: 2;
   font-size: 12px;
-  font-weight: bold; /* 가독성을 위해 글씨체를 굵게 설정 */
+  font-weight: bold;
+  /* 가독성을 위해 글씨체를 굵게 설정 */
 }
 
 .actions {
@@ -370,7 +419,9 @@ export default {
 }
 
 /* 상품이 완료 상태일 때 */
-.complete, .add-goal-btn, .create-product {
+.complete,
+.add-goal-btn,
+.create-product {
   border: transparent !important;
   background: #007bff !important;
   color: white !important;
@@ -379,8 +430,12 @@ export default {
   border-radius: 10px;
   font-size: 16px;
 }
-.complete:hover, .add-goal-btn:hover, .create-product:hover {
-  background-color: #0056b3 !important;/* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
+
+.complete:hover,
+.add-goal-btn:hover,
+.create-product:hover {
+  background-color: #0056b3 !important;
+  /* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
 }
 
 .create-product {
@@ -400,7 +455,7 @@ export default {
   background: #dc3545;
 }
 
-.title > button {
+.title>button {
   padding: 10px;
   margin-left: 20px;
 }
@@ -428,17 +483,18 @@ p {
 
 /* actionPlan이 null일 때 */
 .action-plan.null-plan {
-  background-color: #d9d9d9; /* 회색 배경 */
+  background-color: #d9d9d9;
+  /* 회색 배경 */
 }
 
 /* actionPlan이 null이 아닐 때 */
 .action-plan.non-null-plan {
-  background-color: #ffe8c3; /* 연노랑색 배경 */
+  background-color: #ffe8c3;
+  /* 연노랑색 배경 */
 }
 
 .action-plan-title {
   font-weight: bold;
   margin-bottom: 4px;
 }
-
 </style>
