@@ -72,7 +72,7 @@
               <div class="blue-container1 half-width">
                 <h3>나의 예상 지출 추이를 확인해 보세요!</h3>
                 <!-- 시계열 그래프 -->
-                <canvas id="predictChart"></canvas>
+                <canvas ref="predictChart"></canvas>
               </div>
               <div class="blue-container2 half-width">
                 <div class="spend-category-card" v-if="formattedAdminResponse">
@@ -167,7 +167,11 @@ export default {
         TOT_USE_AM:[]
       },
       chart: null,
-      
+
+      // this.fetchLastTotUseAm().then(() => {
+      //   this.$nextTick(() => {
+      //     this.renderChart();}}),
+
       categoryMap: {
         FUNITR_AM: "가구",
         APPLNC_AM: "가전제품",
@@ -209,8 +213,17 @@ export default {
     this.accessAdminPage(); // 페이지 로드 시 머신러닝 예측 자동 실행
     this.fetchELKDataUsingToken();
     this.fetchMaxSpendingData();
+    // this.fetchData();
     this.twentyPercentLess = this.formattedAdminResponse * 0.8;
     this.twentyPercentMore = this.formattedAdminResponse * 1.2;
+    this.accessAdminPage().then(()=>{
+      this.fetchLastTotUseAm().then(()=> {
+        this.$nextTick(() => {
+          this.renderChart();
+      });
+    });
+    });
+    // this.predictChartCanvas = this.$refs.predictChart;
   },
 
   methods: {
@@ -237,6 +250,11 @@ export default {
         console.error('사용자 정보 가져오기 실패:', error);
       }
     },
+    
+    async fetchData(){
+      await this.accessAdminPage();
+      await this.fetchLastTotUseAm();
+    },
 
     async accessAdminPage() {
       this.loading = true; // 로딩 상태 시작
@@ -257,21 +275,13 @@ export default {
             "Authorization": `${token}`, // HTTP request 헤더에 토큰 포함
             "Content-Type": "application/json"
           }
-        });
-        console.log(typeof response);
-        console.log(response.json());
-        
-        const adminResponse = await response.json();
-        if (adminResponse.data) {
-          this.adminResponse = adminResponse.data.map(item => ({
-            result: item.result
-          })
-        )};
+        }).then((response) => response.json());
+        console.log(typeof response.result);
+        console.log(response.result);
 
-
-        if (response && response.data) {
-          this.adminResponse = response.data.result;
-          console.log("adminResponse:", adminResponse);
+        if (response) {
+          this.adminResponse = response.result;
+          console.log("adminResponse:", this.adminResponse);
         } else {
           console.error('데이터가 비어 있거나 접근할 수 없습니다.');
         }
@@ -374,9 +384,12 @@ export default {
           headers: { Authorization: `${token}` }
         });
 
-        if (response.data && response.data.BAS_YH && response.data.TOT_USE_AM){
-        this.chartData.BAS_YH = response.data.BAS_YH;
-        this.chartData.TOT_USE_AM = response.data.TOT_USE_AM;
+        console.log("chartData에 넣을 데이터 response값:", response);
+        console.log("response_basyh:", response.data.data.TOT_USE_AM);
+
+        if (response.data && response.data.data.BAS_YH && response.data.data.TOT_USE_AM){
+        this.chartData.BAS_YH = response.data.data.BAS_YH;
+        this.chartData.TOT_USE_AM = response.data.data.TOT_USE_AM;
 
         // 직전분기 실제값 변수 정의
         this.lastActualValue = this.chartData.TOT_USE_AM[this.chartData.TOT_USE_AM.length-1];
@@ -388,9 +401,10 @@ export default {
         console.log("chartData", this.chartData);
 
         // 그래프 그리기
-        this.$nextTick(() => {
-            this.renderChart();
-          });
+        // this.$nextTick(() => {
+        //     this.renderChart();
+        //   });
+
         } else {
           console.error('데이터가 비어있거나 예상 형식과 다릅니다', response.data);
         }
@@ -402,15 +416,18 @@ export default {
     },
 
     renderChart(){
-      const canvas = this.$refs.predictChart;
-      if (!canvas) {
+      // const predictChartCanvas = this.predictChartCanvas;
+      const predictChartCanvas = this.$refs.predictChart;
+      console.log(this.chartData.TOT_USE_AM);
+      if (!predictChartCanvas) {
+        // console.log(this);
         console.error('Canvas element not found!');
         return;
       }
-      const ctx = canvas.getContext('2d');
-      if (this.chart){
-        this.chart.destroy();
-      }
+      const ctx = predictChartCanvas.getContext('2d');
+      // if (this.chart){
+      //   this.chart.destroy();
+      // }
       this.chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -432,6 +449,7 @@ export default {
           }
         }
       });
+      console.log(this.chart.data);
     }
   }
 };
