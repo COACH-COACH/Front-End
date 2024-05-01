@@ -6,38 +6,60 @@
     <div class="tabs">
       <button v-for="tab in tabs" :key="tab.name" @click="selectTab(tab)" :class="{ 'active-tab': tab.name === activeTab }">{{ tab.title }}</button>
     </div>
-
-    <div class="content">
+    
+    <div class="content red-container"> <!-- Red Container 1 -->
       <div v-show="activeTab === 'tab1'" class="active">
-        
-        <h2>나의 지난 지출은?</h2>
-        
-        <!-- 과거의 분기 별 소비 총액 -->
+        <h2>😎나의 지난 지출을 확인해 보세요!</h2>
         <div class="iframe-container">
-          <iframe
-            :src="generateDashboardUrl"
-            class="centered-iframe"
-            frameborder="0"
-            allowfullscreen
-          ></iframe>
+          <iframe :src="generateDashboardUrl" class="centered-iframe" frameborder="0" allowfullscreen></iframe>
         </div>
-      
-        <h2>다음 분기 나의 소비는 이럴 것 같아요!</h2>
+
+        <div class="spend-yellow-container">
+          <div class="blue-container1 half-width">
+            <div class="spend-category-card" v-if="this.spendCategory">
+              <p v-if="displayMessage">{{ displayMessage }}</p>
+              <h3 v-else>지난 기간 동안 <span class="highlight">{{ categoryName }}</span> 항목에 가장 많은 소비를 하셨습니다! 총 <span class="highlight">{{ categoryAmt }}원</span> 지출하셨어요. </h3>
+            </div>     
+          </div>
+
+          <div class="blue-container2 half-width"> 
+            <select v-model="selectedQuarter" @change="fetchQuarterData">
+              <option v-for="option in quarters" :value="option.value">{{ option.text }}</option>
+            </select>
+            <div class="category-cards-container">
+              <div class="category-card">
+                <div v-if="quarterComparison">
+                  <p>지출 증가 카테고리: {{ quarterComparison.increase }}</p>
+                </div>
+              </div>
+              <div class="category-card">
+                <div v-if="quarterComparison">
+                  <p>지출 감소 카테고리: {{ quarterComparison.decrease }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <h2>😎위비코치가 고객님의 다음 분기 소비를 예측해 봤어요!</h2>
         <div v-if="loading">
           <p align="middle">로딩 중...</p>
         </div>
-        <div v-else>
-          <div v-if="adminResponse">
-            <p align="middle">예상 소비량은? : {{ adminResponse }}</p>
-          </div>
-        </div>
+        <div class="blue-container2 half-width" v-else>
+          <div class="category-cards-container">
+            <div class="category-card">          
+              <div v-if="adminResponse">
+                <p align="middle">예상 소비량은? : {{ adminResponse }}</p>
+              </div>
+            </div>
+          </div> 
+        </div>    
       </div>
-      
-
+    </div>
+    
+    <div class="content red-container">
       <div v-show="activeTab === 'tab2'" class="active">
-        
         <h2>나와 같은 생애주기를 가진 고객님들의 특징이에요! : {{ this.queryLifeStage }} </h2>
-
         <!-- 체크 vs 신용 -->
         <div class="iframe-container">
           <iframe
@@ -80,12 +102,64 @@ export default {
       tabs:[
         { name: 'tab1', title: '나의 소비' },
         { name: 'tab2', title: '소비 비교' }
-      ]
+      ],
+      selectedQuarter: '2022q1',
+      quarters: [
+        { text: '2022년 1분기', value: '2022q1' },
+        { text: '2022년 2분기', value: '2022q2' },
+        { text: '2022년 3분기', value: '2022q3' },
+        { text: '2022년 4분기', value: '2022q4' },
+        { text: '2023년 1분기', value: '2023q1' },
+        { text: '2023년 2분기', value: '2023q2' },
+        { text: '2023년 3분기', value: '2023q3' },
+        { text: '2023년 4분기', value: '2023q4' }        
+      ],
+      spendCategory: '',
+      categoryName: '',
+      categoryAmt: 0,
+      displayMessage: '',
+      quarterComparison: null,
+      maxSpendingData: null,
+      categoryMap: {
+        FUNITR_AM: "가구",
+        APPLNC_AM: "가전제품",
+        HLTHFS_AM: "건강 식품",
+        BLDMNG_AM: "건물 및 시설관리",
+        ARCHIT_AM: "건축/자재",
+        OPTIC_AM: "광학제품",
+        AGRICTR_AM: "농업",
+        LEISURE_S_AM: "레져업소",
+        LEISURE_P_AM: "레져용품",
+        CULTURE_AM: "문화/취미",
+        SANIT_AM: "보건/위생",
+        INSU_AM: "보험",
+        OFFCOM_AM: "사무/통신기기",
+        BOOK_AM: "서적/문구",
+        RPR_AM: "수리서비스",
+        HOTEL_AM: "숙박업",
+        GOODS_AM: "신변잡화",
+        TRVL_AM: "여행업",
+        FUEL_AM: "연료판매",
+        SVC_AM: "용역서비스",
+        DISTBNP_AM: "유통업비영리",
+        DISTBP_AM: "유통업영리",
+        GROCERY_AM: "음식료품",
+        HOS_AM: "의료기관",
+        CLOTH_AM: "의류",
+        RESTRNT_AM: "일반/휴게음식",
+        AUTOMNT_AM: "자동차정비/유지",
+        AUTOSL_AM: "자동차판매",
+        KITWR_AM: "주방용품",
+        FABRIC_AM: "직물",
+        ACDM_AM: "학원",
+        MBRSHOP_AM: "회원제형태업소"        
+       }
     };
   },
   mounted() {
     this.accessAdminPage(); // 페이지 로드 시 머신러닝 예측 자동 실행
     this.fetchELKDataUsingToken();
+    this.fetchMaxSpendingData();
   },
   methods: {
     selectTab(tab) {
@@ -117,7 +191,7 @@ export default {
       const url = 'http://localhost:8080/user/invoke-flask';
 
       try {
-        const token = this.getToken; // Vuex 스토어에서 토큰 가져오기 // 새로고침하면 vuex 스토어에 문제 있나/.???
+        const token = this.getToken; // Vuex 스토어에서 토큰 가져오기
 
         if (!token) {
           console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
@@ -136,67 +210,224 @@ export default {
       } finally {
         this.loading = false; // 로딩 상태 종료
       }
+    },
+    async fetchQuarterData() {
+      if (!this.selectedQuarter) return;
+      this.loading = true;
+      const url = `${process.env.VUE_APP_API_URL}/consumption/compare?quarter=${this.selectedQuarter}`;
+
+      try {
+        const token = this.getToken;
+        if (!token) {
+          console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
+          return;
+        }
+        const response = await axios.get(url, {
+          headers: { Authorization: `${token}` }
+        });
+
+        this.quarterComparison = response.data.data;
+        console.log(quarterComparison);
+
+      } catch (error) {
+        console.error('분기 비교 데이터 로드 실패:', error.response);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async fetchMaxSpendingData() {
+      this.loading = true;
+      const url = `${process.env.VUE_APP_API_URL}/consumption/max`;
+      try {
+        const token = this.getToken;
+        if (!token) {
+          console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
+          return;
+        }
+        const response = await axios.get(url, {
+          headers: { Authorization: `${token}` }
+        });
+
+        this.spendCategory = response.data.data;
+        console.log(this.spendCategory);
+
+        if (!this.spendCategory) {
+          this.displayMessage = "데이터가 없습니다";
+        } else {
+          const { amt, category } = this.spendCategory;
+          this.categoryName = this.categoryMap[category] || "분류되지 않은 카테고리";
+          this.categoryAmt = amt * 1000;
+          this.displayMessage = '';
+        }
+      } catch (error) {
+        console.error('최대 지출 데이터 로드 실패:', error.response);
+        this.displayMessage = "데이터 로드에 실패했습니다";
+      } finally {
+        this.loading = false;
+      }
     }
   }
 };
 </script>
 
 <style scoped>
+
+
 .container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  margin-top: 10px;
+  padding: 20px;
+  background-color: #fff; /* Clean white background */
 }
 
-h1 {
-  margin-top: 10;
-  margin-bottom: 50px;
+.app-header h1 {
+  color: #333;
   font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 20px;
 }
 
 .tabs {
   display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
 .tabs button {
-  padding: 10px 15px; /* 좀 더 큰 패딩 */
+  flex: 1;
+  background-color: #0056b3;
+  color: white;
   border: none;
-  outline: none;
+  padding: 10px 20px;
+  margin-right: 5px;
+  font-size: 16px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 18px;
-  font-weight: bold; /* 글씨체 강조 */
-  color: rgb(0, 131, 202);
-  border-radius: 10px; /* 버튼 끝을 둥글게 만듦 */
-  margin-right: 10px; /* 탭 버튼 사이 간격 추가 */
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .tabs button:hover {
-  color: #000; /* 마우스 호버 시 더 어두운 색상 */
-  background-color: #eee; /* 배경색 추가 */
+  background-color: #004494; /* Slightly darker blue on hover */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* Soft shadow for 3D effect */
 }
 
-.active-tab {
+.tabs button.active-tab {
   font-weight: bold;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  background-color: ##004494;
 }
 
 .content {
-  width: calc(100% - 20px); /* 버튼과 content 사이 간격을 고려하여 width 조정 */
-  padding: 10px; /* 테두리와 content 사이 간격을 조절하기 위한 패딩 추가 */
-  border: 1px solid #ccc; /* 테두리 스타일 추가 */
-  border-radius: 10px; /* 테두리의 둥글게 만들기 */
+  width: 100%;
+  margin-top: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  /* padding: 20px; */
+  background-color: #ffffff; /* Light grey background for the content area */
 }
 
-.tab-section {
-  margin-top: 20px;
+.content h2{
+  margin-left: 20px;
 }
 
 .iframe-container {
-  display: flex;
+  margin-bottom: 20px;
 }
 
-.centered-iframe {
+.iframe-container iframe {
   width: 100%;
   height: 500px;
-  border: none;
+  border-radius: 5px;
+}
+
+.spend-yellow-container{
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.half-width {
+  flex: 1;
+  padding: 10px;
+}
+
+.max-spend, .comparison, .next-spending-prediction {
+  background-color: #f1f1f1; /* White background for cards */
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for elevation */
+  margin-bottom: 10px; /* Spacing between cards */
+  color: #0056b3;
+}
+
+.spend-category-card, .category-card {
+  height: 250px;
+  background-color: #fff398; /* White background for cards */
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  margin-bottom: 10px; /* Spacing between cards */
+  text-align: center; /* Center text for better readability */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* font-size: 40px !important; */
+}
+.spend-category-card h3{
+  font-size: 20px;
+  font-weight: bold;
+  font-family: 'Open Sans';
+}
+
+.category-cards-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.category-card {
+  flex: 1;
+  height: 200px;
+  margin: 5px; /* Small margin between cards */
+  padding: 10px; /* Padding inside each card */
+  background-color: #ecf0f1; /* Light gray background for category cards */
+  border-radius: 5px; /* Rounded corners for aesthetic */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Light shadow for depth */
+}
+
+.category-card > div {
+  flex: 1;
+  padding: 10px;
+  margin: 5px;
+  background-color: #ecf0f1; /* Very light gray for card sections */
+  border-radius: 5px; /* Rounded corners for internal cards */
+  text-align: center; /* Centering text in category cards */
+}
+
+select {
+  padding: 8px;
+  border-radius: 5px;
+  width: 100%;
+  border: 1px solid #0056b3; /* Light grey border for dropdown */
+  background-color: #e3e3e3; /* Matching background with category cards */
+  margin-top: 10px;
+  margin-bottom: 10px
+}
+
+p {
+  font-size: 16px;
+  color: #2c3e50; /* Dark blue-grey color for text */
+}
+
+.highlight {
+  font-weight: bolder; /* 굵게 */
+  font-size: larger; /* 크기 증가 */
+  color: #0083CA;
 }
 </style>
+

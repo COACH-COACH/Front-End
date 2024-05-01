@@ -30,7 +30,7 @@
 
 <style>
 .header {
-  background-color: #fff;
+  background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -46,7 +46,7 @@
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #27ae60;
+  color: #FEE101;
 }
 
 .navigation ul {
