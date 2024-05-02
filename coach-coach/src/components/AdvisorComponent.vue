@@ -33,12 +33,14 @@ export default {
     };
   },
   methods: {
+    // 이전, 다음 뉴스 버튼
     handleNext() {
       this.currentView = (this.currentView + 1) % this.messages.length;
     },
     handlePrev() {
       this.currentView = (this.currentView + this.messages.length - 1) % this.messages.length;
     },
+    // 어드바이저 API 연결
     async fetchAdvice() {
       const url = 'http://localhost:8080/advisor/getAdvice';
       const token = this.getToken;
@@ -60,13 +62,15 @@ export default {
         ];
         this.isLoading = false;
       } catch (error) {
-        console.error('There was an error fetching the advice:', error);
-        this.messages = ['Error fetching data. Please try again later.'];
+        console.error('메시지 Fetch 시 오류 발생:', error);
+        this.messages = ['에러가 발생했어요. 조금 더 나은 위비코치가 되도록 개선할게요!'];
         this.isLoading = false;
       }
     },
-    formatNews(news) {
-      const sentences = news.split(/(?<=[.!?])\s+/);
+
+    // API로 받아온 텍스트 정제
+    formatNews(text) {
+      const sentences = text.split(/(?<=[.!?])\s+/);
       if (sentences.length > 0) {
         sentences[0] = `<h2>${sentences[0]}</h2>`;
       }
@@ -144,38 +148,6 @@ section div {
   height: 20px;
   background: white;
   border-bottom-left-radius: 10px;
-  -webkit-transform: translate(-30px, -2px);
-}
-
-.from-them {
-  position: relative;
-  padding: 10px 20px;
-  background: #E5E5EA;
-  border-radius: 25px;
-  color: black;
-  float: left;
-}
-.from-them:before {
-  content: "";
-  position: absolute;
-  z-index: 2;
-  bottom: -2px;
-  left: -7px;
-  height: 20px;
-  border-left: 20px solid #E5E5EA;
-  border-bottom-right-radius: 16px 14px;
-  -webkit-transform: translate(0, -2px);
-}
-.from-them:after {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  bottom: -2px;
-  left: 4px;
-  width: 26px;
-  height: 20px;
-  background: white;
-  border-bottom-right-radius: 10px;
   -webkit-transform: translate(-30px, -2px);
 }
 
