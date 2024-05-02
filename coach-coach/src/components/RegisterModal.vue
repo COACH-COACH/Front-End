@@ -142,6 +142,8 @@ export default {
       console.log(`Attempting to register product with goal ID: ${selectedGoalId.value}`);
 
       try {
+        console.log("goalAmount: ", goalAmount.value);
+
         if (!token.value) {
           console.error('로그인 후 다시 시도해주세요.');
           errorMessage.value = '로그인 후 다시 시도해주세요.';
@@ -203,11 +205,10 @@ export default {
         if (product.value.depositCycle !== '자유적립식' && product.value.depositCycle !== 'FLEXIBLE') {
           postData.depositAmount = depositAmount.value;
         }
-        if (product.value.depositCycle === '자유적립식' && product.value.depositCycle === 'FLEXIBLE'){
+        if (product.value.depositCycle === '자유적립식' || product.value.depositCycle === 'FLEXIBLE'){
           postData.goalAmount = goalAmount.value;
         }
         console.log("postData:", postData);
-        
         console.log("postData_firstDeposit", postData.firstDeposit);
         console.log("postData_depositAmount", postData.depositAmount);
         console.log("postData_goalAmount:", postData.goalAmount);
@@ -226,9 +227,10 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.log(errorData);
-          throw new Error(errorData.message || '상품 등록에 실패했습니다.');
-        }
+          console.log("errordata", errorData);
+          errorMessage.value = '상품 등록 데이터를 불러올 수 없습니다.';
+          // throw new Error(errorData.message || '상품 등록에 실패했습니다.');
+        }  
         
         // 여기에 성공 시 필요한 로직을 추가합니다.
         errorMessage.value = '상품이 성공적으로 가입되었습니다.';
@@ -236,7 +238,7 @@ export default {
 
       } catch (error) {
         console.error(error);
-        errorMessage.value = `상품 가입에 실패했습니다. ${error.message} 다시 시도해 주세요.`;
+        errorMessage.value = `상품 가입에 실패했습니다. 다시 시도해 주세요.`;
         showModal.value = true;
       }
     };
@@ -252,7 +254,7 @@ export default {
       translatedDepositCycle,
       showModal,
       errorMessage,
-      registerProduct,
+      registerProduct
       // closeModal
       // closeErrorModal
     };
