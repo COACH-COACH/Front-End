@@ -199,18 +199,6 @@ export default {
             // 데이터 구조에 'increase'와 'decrease'가 존재하는지 확인 후 처리
             this.handleData(this.quarterComparison);
         }
- 
- 
-        // if (!this.quarterComparison || (Object.keys(this.quarterComparison.increase).length === 0 || Object.keys(response.data.decrease).length === 0)) {
-        //   this.increaseList = []; // 변동사항이 없을 때 리스트 초기화
-        //   this.decreaseList = [];      
-        //   this.quarterChangeMessage = "유의한 데이터 변동이 없습니다";
-        //   console.log(this.quarterChangeMessage);
-        // } else {
-        //   this.increaseList = this.processCategoryChanges(this.quarterComparison.increase, 'increase');
-        //   this.decreaseList = this.processCategoryChanges(this.quarterComparison.decrease, 'decrease');
-        //   this.quarterChangeMessage = "";
-        // }
 
       } catch (error) {
         console.error('분기 비교 데이터 로드 실패:', error.response.data);
@@ -250,16 +238,6 @@ export default {
             return `${categoryName}: ${type === 'increase' ? '+' : '-'} ${value * 1000}원`;
         });
     }
-
-    // processCategoryChanges(changes, type) {
-    //   let message = type === 'increase' ? '+' : '-';
-    //   let result = Object.entries(changes).map(([key, value]) => {
-    //     let categoryName = this.categoryMap[key] || "분류되지 않은 카테고리";
-    //     return `${categoryName}: ${message} ${value * 1000}원`;
-    //   });
-    //   return result; 
-    // }
-
   }
 };
 </script>
