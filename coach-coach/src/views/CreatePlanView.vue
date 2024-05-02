@@ -5,29 +5,29 @@
       <div class="description layout-margin">
         <!-- 좌측 타이틀 -->
         <div class="title">
-          <h2 class="blue-text">두금님의 목표 실천 방법을<br />설정해 보세요🔥</h2>
-          <p>두금님의 목표에 대해 계산해 보았어요</p>
+          <h2 class="blue-text">{{ planDetails.fullName }}님의 목표 실천 방법을<br />설정해 보세요🔥</h2>
+          <p>{{ planDetails.fullName }}님의 목표에 대해 계산해 보았어요</p>
           <img class="resize-image" :src="titleWibeeSrc" alt="캐릭터 이미지">
         </div>
         <!-- 우측 카드 -->
         <div class="card">
           <div class="card-title">
             <h3>나의 목표는?</h3>
-            <h1>여행</h1>
+            <h1>{{ planDetails.goalName }}</h1>
           </div>
           <img :src="cardWibeeSrc" alt="캐릭터 이미지">
           <div class="card-content">
             <p class="blue-text"><b>현재 나는?</b></p>
             <ul>
-              <li>목표 금액: 4,000,000원</li>
-              <li>잔여 금액: 1,200,000원</li>
-              <li>잔여 기간: 7개월</li>
+              <li>목표 금액: {{ numberFormat(planDetails.targetAmt) }}</li>
+              <li>잔여 금액: {{ numberFormat(planDetails.remainAmt) }}</li>
+              <li>잔여 기간: {{ formatDuration(planDetails.remainDay) }}</li>
             </ul>
             <p class="blue-text"><b>목표 금액까지</b></p>
             <ul>
-              <li>매달 140,000원</li>
-              <li>매주 18,000원</li>
-              <li>매일 4,600원 모으면 달성할 수 있어요</li>
+              <li>매달 {{ numberFormat(planDetails.monthlyReqAmt) }}</li>
+              <li>매주 {{ numberFormat(planDetails.weeklyReqAmt) }}</li>
+              <li>매일 {{ numberFormat(planDetails.dailyReqAmt) }} 모으면 달성할 수 있어요</li>
             </ul>
           </div>
         </div>
@@ -78,14 +78,81 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
   name: 'CreatePlanView',
-  setup() {
+  props: {
+    enrollId: {
+      type: Number,
+      required: true
+    }
+  },
+  setup(props) {
     const titleWibeeSrc = ref(require('@/assets/wibee_hat.png'));
     const cardWibeeSrc = ref(require('@/assets/webee-removebg-preview.png'));
-    return { titleWibeeSrc, cardWibeeSrc };
+
+    const store = useStore();
+    const token = computed(() => store.getters.getToken);
+
+    const planDetails = ref({
+      fullName: '',
+      goalName: '',
+      targetAmt: 0,
+      remainAmt: 0,
+      remainDay: 0,
+      monthlyReqAmt: 0,
+      weeklyReqAmt: 0,
+      dailyReqAmt: 0
+    });
+    
+    const fetchPlanDetails = async () => {
+      if (!token.value) {
+        console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
+        return;
+      }
+      try {
+        console.log(props.enrollId);
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/plan/${props.enrollId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${token.value}`
+          }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          planDetails.value = data.data;
+        } else {
+          throw new Error(data.responseMessage || 'Failed to retrieve the plan details.');
+        }
+      } catch (error) {
+        console.error('Error fetching plan details:', error.message);
+      }
+    };
+
+    const numberFormat = (value) => {
+      const rounded = Math.ceil(value / 10) * 10;
+      return new Intl.NumberFormat('ko-KR').format(rounded) + '원';
+    };
+
+    const formatDuration = (days) => {
+      const years = Math.floor(days / 365);
+      const months = Math.floor((days % 365) / 30);
+      const remainingDays = days % 30;
+      let result = '';
+      if (years > 0) result += `${years}년 `;
+      if (months > 0) result += `${months}개월 `;
+      if (remainingDays > 0) result += `${remainingDays}일`;
+      return result || '0일'; // Return '0일' if all are zero
+    };
+
+    onMounted(() => {
+      fetchPlanDetails();
+    });
+    
+    return { titleWibeeSrc, cardWibeeSrc, planDetails, numberFormat, formatDuration };
   }
 }
 </script>
@@ -107,6 +174,7 @@ export default {
 }
 
 .description {
+  padding-top: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;

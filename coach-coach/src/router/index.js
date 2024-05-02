@@ -74,9 +74,10 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/main/goal/plan/new',
+    path: '/main/goal/plan/new/:enrollId',
     name: 'newPlan',
     component: CreatePlanView,
+    props: true
   }
 ]
 

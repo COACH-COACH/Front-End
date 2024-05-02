@@ -72,7 +72,7 @@
               :class="{ 'action-plan': true, 'null-plan': goal.actionPlan == null, 'non-null-plan': goal.actionPlan != null }">
               <div v-if="goal.actionPlan == null">
                 <p>자유적금은 실천방안을 추가할 수 있어요. 추가하시겠어요?</p>
-                <button class="create-btn create-action-plan" @click="addPlan">실천방안 추가하기</button>
+                <button class="create-btn create-action-plan" @click="addPlan(goal.enrollId)">실천방안 추가하기</button>
               </div>
               <div v-else>
                 <p class="action-plan-title">자유적금 실천방안</p>
@@ -233,9 +233,14 @@ export default {
       }
     };
 
+    const addPlan = (enrollId) => {
+      console.log("실천방안 추가:" +enrollId );
+      router.push({ name: 'newPlan', params: { enrollId: enrollId } });
+    };
+
     onMounted(fetchGoals);
 
-    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion, confettiActive, goalCompleteTest };
+    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion, confettiActive, goalCompleteTest, addPlan };
   }
 };
 </script>
