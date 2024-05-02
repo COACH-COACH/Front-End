@@ -10,6 +10,7 @@ import ConsumptionView from '@/views/ConsumptionView.vue'
 import ProductDetailView from '@/views/ProductDetailView.vue'
 import CardNewsView from '@/views/CardNewsView.vue'
 import CreateGoalView from '@/views/CreateGoalView.vue'
+import CreatePlanView from '@/views/CreatePlanView.vue'
 
 
 const routes = [
@@ -71,6 +72,11 @@ const routes = [
     name: 'cardnews',
     component: CardNewsView,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/main/goal/plan/new',
+    name: 'newPlan',
+    component: CreatePlanView,
   }
 ]
 

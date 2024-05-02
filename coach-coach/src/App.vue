@@ -2,7 +2,7 @@
   <div>
     <div class="header">
       <div class="container">
-        <router-link to="/main" class="logo">COACH COACH</router-link>
+        <router-link to="/main" class="logo"><i>WIBEE COACH</i></router-link>
         <nav class="navigation">
           <ul>
             <li><router-link to="/main/goal">목표 관리</router-link></li>
@@ -47,6 +47,7 @@
   font-size: 1.5rem;
   font-weight: bold;
   color: #FEE101;
+  text-decoration-line: none;
 }
 
 .navigation ul {
