@@ -167,6 +167,9 @@ export default {
     };
 
     const formatDate = (dateStr) => {
+      if (dateStr == null) {
+        return "최근 입금 내역이 없습니다.";
+      }
       const date = new Date(dateStr);
       return `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getDate().toString().padStart(2, '0')}`;
     };

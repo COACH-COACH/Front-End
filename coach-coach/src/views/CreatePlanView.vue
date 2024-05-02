@@ -36,7 +36,7 @@
 
     <!-- 하단 -->
     <div class="booking layout-margin">
-      <h2 class="blue-text">어떤 저축 방식으로목표를 달성하시겠어요?📊</h2>
+      <h2 class="blue-text">어떤 저축 방식으로<br />목표를 달성하시겠어요?📊</h2>
       <div class="form-grid">
         <div>
           <label for="start-date">저축 시작일을 선택해 주세요</label>
@@ -45,19 +45,19 @@
         <div>
           <label for="method">저축 주기를 선택해 주세요</label>
           <select id="method">
-            <option value="daily">매일</option>
-            <option value="weekly">매주</option>
-            <option value="monthly">매달</option>
+            <option value="1">매일</option>
+            <option value="7">매주</option>
+            <option value="30">매달</option>
           </select>
         </div>
         <div>
           <label for="saving-method">어떤 방식으로 저축하시겠어요?</label>
           <select id="saving-method" v-model="selectedMethod" @change="onChangeMethod">
-            <option value="regular" selected>커피 줄이기☕</option>
-            <option value="irregular">점심 아끼기🍱</option>
-            <option value="lump-sum">배달 줄이기🏍</option>
-            <option value="lump-sum">편의점 줄이기🍙</option>
-            <option value="lump-sum">쇼핑 줄이기👕</option>
+            <option selected>커피 줄이기☕</option>
+            <option>점심 아끼기🍱</option>
+            <option>배달 줄이기🏍</option>
+            <option>편의점 줄이기🍙</option>
+            <option>쇼핑 줄이기👕</option>
           </select>
         </div>
         <div class="input-wrapper">
@@ -70,8 +70,8 @@
       </div>
 
       <div class="button-group">
-        <button class="create-btn">추가</button>
-        <button class="cancel-btn">취소</button>
+        <button class="create-btn" @click="clickAddPlan">추가</button>
+        <button class="cancel-btn" @click="back">취소</button>
       </div>
     </div>
   </div>
@@ -80,6 +80,7 @@
 <script>
 import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'CreatePlanView',
@@ -95,6 +96,7 @@ export default {
 
     const store = useStore();
     const token = computed(() => store.getters.getToken);
+    const router = useRouter();
 
     const planDetails = ref({
       fullName: '',
@@ -113,7 +115,6 @@ export default {
         return;
       }
       try {
-        console.log(props.enrollId);
         const response = await fetch(`${process.env.VUE_APP_API_URL}/plan/${props.enrollId}`, {
           method: 'GET',
           headers: {
@@ -125,10 +126,10 @@ export default {
         if (response.ok) {
           planDetails.value = data.data;
         } else {
-          throw new Error(data.responseMessage || 'Failed to retrieve the plan details.');
+          throw new Error(data.responseMessage);
         }
       } catch (error) {
-        console.error('Error fetching plan details:', error.message);
+        console.error('실천방안 조회 실패', error.message);
       }
     };
 
@@ -148,11 +149,60 @@ export default {
       return result || '0일'; // Return '0일' if all are zero
     };
 
+    const clickAddPlan = () => {
+      const depositStartDate = document.getElementById('start-date').value;
+      const depositAmtCycle = document.getElementById('method').value;
+      const selectedMethod = document.getElementById('saving-method').value;
+      const depositAmt = document.getElementById('amount').value;
+      const actionPlan = selectedMethod.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{1FB00}-\u{1FBFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+/gu, '').trim();
+      
+      if (!depositStartDate || !depositAmtCycle || !depositAmt || !actionPlan) {
+        alert("모든 필드를 채워주세요.");
+      } else {
+        createActionPlan(depositStartDate, depositAmtCycle, actionPlan, depositAmt);
+      }
+    };
+
+    const createActionPlan = async (depositStartDate, depositAmtCycle, actionPlan, depositAmt) => {
+      if (!token.value) {
+        console.error('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
+        return;
+      }
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/plan/${props.enrollId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${token.value}`
+          },
+          body: JSON.stringify({
+            depositStartDate: depositStartDate, 
+            depositAmtCycle: depositAmtCycle, 
+            actionPlan: actionPlan, 
+            depositAmt: depositAmt
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          back();
+        } else {
+          throw new Error(data.responseMessage);
+        }
+      } catch (error) {
+        console.error('실천방안 추가 실패', error.message);
+        alert(error.message);
+      }
+    };
+
+    const back = () => {
+      router.push({ name: 'goal' });
+    }
+
     onMounted(() => {
       fetchPlanDetails();
     });
     
-    return { titleWibeeSrc, cardWibeeSrc, planDetails, numberFormat, formatDuration };
+    return { titleWibeeSrc, cardWibeeSrc, planDetails, numberFormat, formatDuration, clickAddPlan, back };
   }
 }
 </script>
