@@ -29,7 +29,7 @@
           <!-- 상품 등록 X -->
           <div v-if="goal.productName === null" class="card no-product">
             <p>목표에 추가된 금융상품이 없어요. 추가하시겠어요?</p>
-            <button class="create-product" @click="addProduct">상품 추가하기</button>
+            <button class="create-btn create-product" @click="addProduct">상품 추가하기</button>
           </div>
 
           <!-- 상품 등록 O -->
@@ -71,7 +71,8 @@
             <div v-if="goal.depositCycle === '자유적금'"
               :class="{ 'action-plan': true, 'null-plan': goal.actionPlan == null, 'non-null-plan': goal.actionPlan != null }">
               <div v-if="goal.actionPlan == null">
-                <p>실천방안이 없어요. 실천방안 추가하러 갑시다.</p>
+                <p>자유적금은 실천방안을 추가할 수 있어요. 추가하시겠어요?</p>
+                <button class="create-btn create-action-plan" @click="addPlan">실천방안 추가하기</button>
               </div>
               <div v-else>
                 <p class="action-plan-title">자유적금 실천방안</p>
@@ -421,7 +422,7 @@ export default {
 /* 상품이 완료 상태일 때 */
 .complete,
 .add-goal-btn,
-.create-product {
+.create-btn {
   border: transparent !important;
   background: #007bff !important;
   color: white !important;
@@ -433,12 +434,12 @@ export default {
 
 .complete:hover,
 .add-goal-btn:hover,
-.create-product:hover {
+.create-btn:hover {
   background-color: #0056b3 !important;
   /* 버튼의 hover 상태에 적용될 배경색을 더 진한 파란색으로 설정. */
 }
 
-.create-product {
+.create-btn {
   margin-top: 12px;
 }
 
