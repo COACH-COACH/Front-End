@@ -11,7 +11,7 @@ import ProductDetailView from '@/views/ProductDetailView.vue'
 import CardNewsView from '@/views/CardNewsView.vue'
 import CreateGoalView from '@/views/CreateGoalView.vue'
 import CreatePlanView from '@/views/CreatePlanView.vue'
-
+import store from '@/store';
 
 const routes = [
   {
@@ -86,39 +86,17 @@ const router = createRouter({
   routes
 })
 
-// 네비게이션 가드 설정
+// 전역 네비게이션 가드
 router.beforeEach((to, from, next) => {
-  // requiresAuth 메타 필드가 true인 페이지에 접근할 때
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    const isAuthenticated = checkUserAuthentication(); // 사용자 인증 상태 확인 (예시)
-    if (!isAuthenticated) {
-      // 인증되지 않은 사용자는 안내 문구 표시 후 리다이렉트
-      showUnauthorizedMessage(next);
-    } else {
-      // 인증된 사용자는 페이지로 진입
-      next();
-    }
+  const publicPages = ['/main/signin', '/main', '/main/signup']; // 로그인이 필요없는 페이지 경로
+  const authRequired = !publicPages.includes(to.path); // 인증이 필요한 페이지인지 확인
+  const loggedIn = store.getters.getToken; // 로그인 상태(토큰 유무)
+
+  if (authRequired && !loggedIn) {
+    next('/main/signin'); // 인증이 필요하고 로그인이 되어 있지 않다면 로그인 페이지로 리다이렉트
   } else {
-    // requiresAuth 메타 필드가 없거나 false인 페이지는 자유롭게 진입
-    next();
+    next(); // 그 외의 경우 정상적으로 라우트 진행
   }
 });
-
-// 사용자 인증 상태 확인 함수 (예시)
-function checkUserAuthentication() {
-  const token = sessionStorage.getItem('token');
-  return !!token; // 토큰이 존재하면 인증된 것으로 간주
-}
-
-// 인증 실패 시 안내 메시지 표시 및 리다이렉트 처리
-function showUnauthorizedMessage(next) {
-  const unauthorizedMessage = '로그인이 필요합니다. 로그인 페이지로 이동해주세요.';
-  alert(unauthorizedMessage);
-
-  // 일정 시간이 지난 후 리다이렉트
-  // setTimeout(() => {
-  //   next({ name: 'signin' });
-  // }, 1000); // 1초 후 리다이렉트
-}
 
 export default router
