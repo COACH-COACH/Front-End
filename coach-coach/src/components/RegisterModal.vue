@@ -20,28 +20,28 @@
               목표 시작일 : {{ goal.startDate }} <br>
             </option>
           </select>
-          
+
           <p v-else>{{ goalsStatusMessage }}</p>
           <!-- 목표 없을 때 목표 만드는 페이지로 이동하는 버튼 만들기 -->
           <button v-if="goalsStatusMessage === '목표가 없습니다. 목표를 생성해 보세요!'" @click="goToGoalCreation">목표 생성하러 가기</button>
       </div>
 
       <!-- 정기 입금액 입력 필드 -->
-      <div class="input-group" v-if="(goals && goals.length > 0) && (product.productType === '적금' ||  product.productType === 'SAVINGS') && (product.depositCycle != '자유적립식' || product.depositCycle != 'FLEXIBLE') ">
+      <div class="input-group" v-if="(goals && goals.length > 0) && (product.productType === '적금' ||  product.productType === 'SAVINGS') && ( product.depositCycle != '자유적립식' && product.depositCycle != 'FLEXIBLE' ) ">
         <label for="deposit-amount">정기 입금액:</label>
         <input id="deposit-amount" type="number" v-model="depositAmount" placeholder="매달 입금하실 금액을 입력하세요">
+      </div>
+      
+      <!-- 첫 입금액 입력 필드 -->
+      <div class="input-group" v-if="(goals && goals.length > 0) && ( product.productType === '적금' || product.productType === 'SAVINGS')">
+        <label for="first-deposit">첫 입금액:</label>
+        <input id="first-deposit" type="number" v-model="firstDeposit" placeholder="첫 입금액을 입력하세요">
       </div>
 
       <!-- 예치금 입력 필드 -->
       <div class="input-group" v-else-if="(goals && goals.length > 0) && (product.productType === '예금' || product.productType === 'DEPOSIT')">
         <label for="deposit-amount">예치금:</label>
         <input id="deposit-amount" type="number" v-model="depositAmount" placeholder="예금에 예치하실 금액을 입력하세요">
-      </div>
-
-      <!-- 첫 입금액 입력 필드 -->
-      <div class="input-group" v-if="(goals && goals.length > 0)">
-        <label for="first-deposit">첫 입금액:</label>
-        <input id="first-deposit" type="number" v-model="firstDeposit" placeholder="첫 입금액을 입력하세요">
       </div>
 
       <error-modal :show="showModal" @close="closeModal">
@@ -91,6 +91,8 @@ export default {
   created() {
     console.log(this.goals); // 모달이 생성될 때 현재 goals 배열을 로그
     console.log(this.product);
+    console.log(this.product.depositCycle);
+    console.log(typeof this.product.depositCycle);
     console.log(this.goalsStatusMessage);
   },
   
@@ -109,7 +111,7 @@ export default {
     const token = computed(() => store.getters.getToken); // Vuex getter 사용
     const router = useRouter();
     const selectedGoalId = ref(''); // 선택된 목표의 ID
-    const depositAmount = ref(0); // 사용자가 입력한 예치금
+    const depositAmount = ref(0); // 사용자가 입력한 정기입금액/예치금
     const firstDeposit = ref(0); // 사용자가 입력한 첫 입금액
     const { product } = toRefs(props);
     const showModal = ref(false);
@@ -120,7 +122,6 @@ export default {
       if (product.value.productType === 'DEPOSIT') return '예금';
       return product.value.productType; // 기본값이나 다른 타입 처리
     });
-
     const translatedDepositCycle = computed(() => {
       if (product.value.depositCycle === 'FIXED') return '정액적립식';
       if (product.value.depositCycle === 'FLEXIBLE') return '자유적립식';
@@ -134,37 +135,70 @@ export default {
       console.log(`Attempting to register product with goal ID: ${selectedGoalId.value}`);
 
       try {
-      if (!token.value) {
-        console.error('로그인 후 다시 시도해주세요.');
-        errorMessage.value = '로그인 후 다시 시도해주세요.';
-        showModal.value = true;
-        return;
-      } else if (!selectedGoalId.value) {
-        errorMessage.value = '목표를 선택해주세요.';
-        showModal.value = true;
-        return;
-      } else if (!depositAmount.value || !firstDeposit.value) {
-        errorMessage.value = '정기입금액과 초기 입금액을 입력해 주세요.';
-        showModal.value = true;
-        return;
-      } else if (depositAmount.value < 1000) {
-        errorMessage.value = `${translatedProductType.value} 입금액은 1000원 이상이어야 합니다.`;
-        showModal.value = true;
-        return;
-      } else if (firstDeposit.value < 1000 || firstDeposit.value > product.value.limitAmt) {
-        errorMessage.value = `첫 입금액은 1000원 이상 ${product.value.limitAmt}원 이하이어야 합니다.`;
-        showModal.value = true;
-        return;
-      }
+        if (!token.value) {
+          console.error('로그인 후 다시 시도해주세요.');
+          errorMessage.value = '로그인 후 다시 시도해주세요.';
+          showModal.value = true;
+          return;
+        }
+
+        if (!selectedGoalId.value) {
+          errorMessage.value = '목표를 선택해주세요.';
+          showModal.value = true;
+          return;
+        }
+
+        if (product.value.productType === '적금' || product.value.productType === 'SAVINGS') {
+          if (product.value.depositCycle === '정기적금' || product.value.depositCycle === 'FIXED') {
+            if (!firstDeposit.value || !depositAmount.value) {
+              errorMessage.value = !firstDeposit.value ? '첫 입금액을 입력해 주세요.' : '정기입금액을 입력해 주세요.';
+              showModal.value = true;
+              return;
+            }
+            if (depositAmount.value < 1000 || depositAmount.value > product.value.limitAmt) {
+              errorMessage.value = `${translatedProductType.value} 입금액은 1000원 이상 ${product.value.limitAmt}원 이하이어야 합니다.`;
+              showModal.value = true;
+              return;
+            }
+          } else if (!firstDeposit.value) {
+            errorMessage.value = '첫 입금액을 입력해 주세요.';
+            showModal.value = true;
+            return;
+          } 
+          if (firstDeposit.value < 1000 || firstDeposit.value > product.value.limitAmt) {
+              errorMessage.value = `첫 입금액은 1000원 이상 ${product.value.limitAmt}원 이하이어야 합니다.`;
+              showModal.value = true;
+              return;
+            }
+        } else if (product.value.productType === '예금' || product.value.productType === 'DEPOSIT') {
+          if (!depositAmount.value) {
+            errorMessage.value = '예치금을 입력해 주세요.';
+            showModal.value = true;
+            return;
+          } else if (depositAmount.value < 1000 || depositAmount.value > product.value.limitAmt) {
+            errorMessage.value = `${translatedProductType.value} 예치금은 1000원 이상 ${product.value.limitAmt}원 이하이어야 합니다.`;
+            showModal.value = true;
+            return;
+          } 
+        }
+
 
         // POST 요청의 body 데이터 구성
         const postData = {
           selectedGoalId: selectedGoalId.value,
-          depositAmount: depositAmount.value,
           firstDeposit: firstDeposit.value
         };
+        if (product.value.depositCycle !== '자유적립식' && product.value.depositCycle !== 'FLEXIBLE') {
+          postData.depositAmount = depositAmount.value;
+        }    
+        console.log("postData:", postData);
+        
+        console.log("postData_firstDeposit", postData.firstDeposit);
+        console.log("postData_depositAmount", postData.depositAmount);
 
-        const productId = typeof props.product.idPk === 'string' ? props.product.idPk : props.product.id;
+        const productId = typeof props.product.id === 'string' ? props.product.idPk : props.product.id;
+        // const productId = props.product.id;
+        console.log("productId", productId);
         const response = await fetch(`${process.env.VUE_APP_API_URL}/product/register/${ productId }/${ selectedGoalId.value }`, {
           method: 'POST',
           headers: {
@@ -176,6 +210,7 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
+          console.log(errorData);
           throw new Error(errorData.message || '상품 등록에 실패했습니다.');
         }
         
@@ -318,4 +353,18 @@ button:not(.submit-button):hover {
   color: white;
   border-color: #5b88fa;
 }
+
+select {
+  width: 100%; /* select 요소가 부모 컨테이너의 전체 너비를 차지하도록 설정 */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  box-sizing: border-box; /* 패딩을 포함한 너비 계산 */
+}
+
+option {
+  width: 100%;
+  white-space: nowrap; /* 내용을 한 줄로 표시 */
+}
+
 </style>
