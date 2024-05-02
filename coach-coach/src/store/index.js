@@ -3,7 +3,8 @@ import { createStore } from 'vuex';
 export default createStore({
   state: {
     isAuthenticated: false,
-    token: null
+    token: null,
+    isLoading: false
   },
   mutations: {
     setToken(state, token) {
@@ -13,6 +14,9 @@ export default createStore({
     clearToken(state) {
       state.token = null;
       state.isAuthenticated = false; // 로그아웃 상태로 설정
+    },
+    setLoading(state, status) {
+      state.isLoading = status;
     }
   },
   actions: {
@@ -29,10 +33,17 @@ export default createStore({
       if (token) {
         commit('setToken', token);
       }
+    },
+    startLoading({ commit }) {
+      commit('setLoading', true);
+    },
+    stopLoading({ commit }) {
+      commit('setLoading', false);
     }
   },
   getters: {
     isLoggedIn: state => state.isAuthenticated,
-    getToken: state => state.token
+    getToken: state => state.token,
+    isLoading: state => state.isLoading
   }
 });
