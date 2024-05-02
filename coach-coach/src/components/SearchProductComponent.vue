@@ -52,7 +52,7 @@
               {{ product.productDetail }}
             </div>
             <div class="product-actions">
-              <button @click="viewDetails(product.id)">상세보기</button>
+              <button @click="viewDetails(product.idPk)">상세보기</button>
             </div>
           </div>
         </div>
