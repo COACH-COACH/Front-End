@@ -38,6 +38,12 @@
         <input id="first-deposit" type="number" v-model="firstDeposit" placeholder="첫 입금액을 입력하세요">
       </div>
 
+      <!-- 목표금액 입력 필드 -->
+      <div class="input-group" v-if="(goals && goals.length > 0) && ( product.productType === '적금' || product.productType === 'SAVINGS') && ( product.depositCycle === '자유적립식' || product.depositCycle === 'FLEXIBLE' )">
+        <label for="first-deposit">목표 금액:</label>
+        <input id="first-deposit" type="number" v-model="goalAmount" placeholder="목표하시는 금액을 입력해 주세요">
+      </div>
+
       <!-- 예치금 입력 필드 -->
       <div class="input-group" v-else-if="(goals && goals.length > 0) && (product.productType === '예금' || product.productType === 'DEPOSIT')">
         <label for="deposit-amount">예치금:</label>
@@ -46,7 +52,7 @@
 
       <error-modal :show="showModal" @close="closeModal">
         <template v-slot:header>
-          상품 가입에 실패했습니다
+          {{ errorMessage.includes('성공적으로') ? '상품이 가입되었습니다' : '상품 가입에 실패했습니다' }}
         </template>
         <template v-slot:body>
           {{ errorMessage }}
@@ -113,6 +119,7 @@ export default {
     const selectedGoalId = ref(''); // 선택된 목표의 ID
     const depositAmount = ref(0); // 사용자가 입력한 정기입금액/예치금
     const firstDeposit = ref(0); // 사용자가 입력한 첫 입금액
+    const goalAmount = ref(0);  // 사용자가 입력한 목표금액
     const { product } = toRefs(props);
     const showModal = ref(false);
     const errorMessage = ref('');
@@ -135,6 +142,8 @@ export default {
       console.log(`Attempting to register product with goal ID: ${selectedGoalId.value}`);
 
       try {
+        console.log("goalAmount: ", goalAmount.value);
+
         if (!token.value) {
           console.error('로그인 후 다시 시도해주세요.');
           errorMessage.value = '로그인 후 다시 시도해주세요.';
@@ -160,8 +169,13 @@ export default {
               showModal.value = true;
               return;
             }
-          } else if (!firstDeposit.value) {
-            errorMessage.value = '첫 입금액을 입력해 주세요.';
+          } else if (!firstDeposit.value || !goalAmount.value ) {
+            if (goalAmount.value <= 0) {
+              errorMessage.value = '목표 금액은 0원 이상이어야 합니다.';
+              showModal.value = true;
+              return;
+            }
+            errorMessage.value = !firstDeposit.value ? '첫 입금액을 입력해 주세요.' : '목표금액을 입력해 주세요.';
             showModal.value = true;
             return;
           } 
@@ -190,11 +204,14 @@ export default {
         };
         if (product.value.depositCycle !== '자유적립식' && product.value.depositCycle !== 'FLEXIBLE') {
           postData.depositAmount = depositAmount.value;
-        }    
+        }
+        if (product.value.depositCycle === '자유적립식' || product.value.depositCycle === 'FLEXIBLE'){
+          postData.goalAmount = goalAmount.value;
+        }
         console.log("postData:", postData);
-        
         console.log("postData_firstDeposit", postData.firstDeposit);
         console.log("postData_depositAmount", postData.depositAmount);
+        console.log("postData_goalAmount:", postData.goalAmount);
 
         const productId = typeof props.product.id === 'string' ? props.product.idPk : props.product.id;
         // const productId = props.product.id;
@@ -210,9 +227,10 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.log(errorData);
-          throw new Error(errorData.message || '상품 등록에 실패했습니다.');
-        }
+          console.log("errordata", errorData);
+          errorMessage.value = '상품 등록 데이터를 불러올 수 없습니다.';
+          // throw new Error(errorData.message || '상품 등록에 실패했습니다.');
+        }  
         
         // 여기에 성공 시 필요한 로직을 추가합니다.
         errorMessage.value = '상품이 성공적으로 가입되었습니다.';
@@ -220,7 +238,7 @@ export default {
 
       } catch (error) {
         console.error(error);
-        errorMessage.value = `상품 가입에 실패했습니다. ${error.message} 다시 시도해 주세요.`;
+        errorMessage.value = `상품 가입에 실패했습니다. 다시 시도해 주세요.`;
         showModal.value = true;
       }
     };
@@ -230,12 +248,13 @@ export default {
       selectedGoalId,
       depositAmount,
       firstDeposit,
+      goalAmount,
       registerProduct,
       translatedProductType,
       translatedDepositCycle,
       showModal,
       errorMessage,
-      registerProduct,
+      registerProduct
       // closeModal
       // closeErrorModal
     };
