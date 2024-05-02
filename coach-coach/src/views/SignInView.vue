@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div v-if="isLoading" class="loading-overlay">
+      <img src="@/assets/loading.gif" alt="Loading..." />
+    </div>
     <h1>로그인</h1>
     <form @submit.prevent="login" class="login-form">
       <div class="form-group">
@@ -31,7 +34,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['isLoggedIn', 'getToken'])
+    ...mapGetters(['isLoggedIn', 'getToken', 'isLoading'])
   },
   methods: {
     async login() {
@@ -43,18 +46,14 @@ export default {
 
       try {
         const response = await axios.post(url, formData);
-        // console.log("asdfasdf")
-        // console.log(response.data.(authorization));
-
         const token = response.headers.get("Authorization"); // 헤더에서 JWT 토큰 가져오기
-        // const t_token = response.headers['authorization'];
-        // const token = t_token.split(' ')[1]; 
+
         console.log(token);
         this.$store.dispatch('login', { token }); // Vuex store에 토큰 저장, login 액션 실행
-
-        // 토큰 저장 등의 추가 작업 수행 가능
+        this.$router.push('/main/goal');
       } catch (error) {
-        console.error('로그인 실패:', error);
+        this.$store.dispatch('stopLoading');
+        alert('아이디 혹은 비밀번호를 확인해 주세요.')
       }
     }
   }
@@ -62,6 +61,23 @@ export default {
 </script>
 
 <style scoped>
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* 배경을 약간 어둡게 처리 */
+}
+
+.loading-overlay img {
+  width: 120px; /* GIF 이미지 크기 조절 */
+  height: auto;
+}
+
 .login-form {
   max-width: 300px;
   margin: 0 auto;
