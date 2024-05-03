@@ -2,7 +2,6 @@
     <div class="goal">
         <div class="container">
         <AdvisorComponent/>
-        <img src="https://ifh.cc/g/S8gatw.png" width="100px">
         </div>
         <GoalComponent/>
     </div>
