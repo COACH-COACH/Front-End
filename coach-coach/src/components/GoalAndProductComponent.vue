@@ -28,6 +28,7 @@
         <div class="product-container item">
           <!-- 상품 등록 X -->
           <div v-if="goal.productName === null" class="card no-product">
+            <img class="resize-image" :src="noProductSrc" alt="캐릭터 이미지">
             <p>목표에 추가된 금융상품이 없어요. 추가하시겠어요?</p>
             <button class="create-btn create-product" @click="addProduct">상품 추가하기</button>
           </div>
@@ -90,7 +91,8 @@
         <!-- 통계량 -->
         <div class="statistics item">
           <div class="card">
-            <p>고객님과 같은 생애주기에 있는 {{ goal.goalStat.proportion.toFixed(1) }}%가 해당 목표를 향해 달려가고 있어요</p>
+            <progress-circle :percentage="goal.goalStat.proportion.toFixed(1)"></progress-circle>
+            <p>고객님 또래의 {{ goal.goalStat.proportion.toFixed(1) }}%가 해당 목표를 향해 달려가고 있어요</p>
             <p>해당 목표로 모인 평균 금액은 {{ numberFormat(goal.goalStat.avgAmt) }} 입니다.</p>
           </div>
 
@@ -105,11 +107,12 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import ConfettiExplosion from "vue-confetti-explosion";
+import ProgressCircle from './ProgressCircle.vue';
 
 export default {
   name: 'GoalComponent',
   components: {
-    ConfettiExplosion
+    ConfettiExplosion, ProgressCircle
   },
   props: {
     pid: {
@@ -118,6 +121,8 @@ export default {
     }
   },
   setup() {
+    const noProductSrc = ref(require('@/assets/lazybee_gray.png'));
+
     const store = useStore();
     const router = useRouter();
     const token = computed(() => store.getters.getToken);
@@ -183,7 +188,10 @@ export default {
     };
 
     const addGoal = () => {
-      if (goalData.value.goals.length >= 3) {
+      if (goalData.value.goals == null) {
+        router.push('/main/goal/new');
+      }
+      else if (goalData.value.goals.length >= 3) {
         alert('목표는 3개까지만 생성이 가능합니다.');
       } else {
         router.push('/main/goal/new');
@@ -241,14 +249,25 @@ export default {
       router.push({ name: 'newPlan', params: { enrollId: enrollId } });
     };
 
+    const addProduct = () => {
+      router.push({ name: 'product' });
+    }
+
     onMounted(fetchGoals);
 
-    return { goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion, confettiActive, goalCompleteTest, addPlan };
+    return { noProductSrc, goalData, fetchGoals, formatDate, numberFormat, checkGoalStatus, addGoal, completeGoal, confirmDeletion, confettiActive, goalCompleteTest, addPlan, addProduct };
   }
 };
 </script>
 
 <style scoped>
+.resize-image {
+  align-content: center;
+  width: 100px;
+  height: auto;
+  margin-bottom: 24px;
+}
+
 .all {
   max-width: 960px;
   margin-left: auto;
@@ -329,20 +348,41 @@ export default {
 /* 목표 연결 상품 & 목표 통계량 */
 .goal-contents {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
 }
 
-.goal-contents>.item {
-  flex: 1;
-  /* 모든 .item 요소가 동일한 공간을 차지하도록 설정 */
+.goal-contents > .item {
+  flex: 1; /* 각 요소가 동일한 공간을 차지하도록 설정 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 통계량 */
+.statistics {
+  display: flex;
+  flex-grow: 1; /* 부모 컨테이너와 높이를 맞추기 위해 flex-grow를 사용 */
+  align-content: center;
 }
 
 .product-container {
   margin-right: 10px;
 }
 
-/* 상품 */
+/* 상품 X */
+.no-product {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 가로 방향 중앙 정렬 */
+  justify-content: center; /* 세로 방향 중앙 정렬 */
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+  border: transparent;
+  margin-top: 12px;
+}
+
+/* 상품 O */
 .start-date {
   margin-left: 8px;
   padding-bottom: 2px;
@@ -360,8 +400,11 @@ export default {
   padding: 20px;
   border-radius: 6px;
   border: transparent;
-  /* 테두리 */
   margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 세로 방향 중앙 정렬 */
+  flex-grow: 1; /* 부모 컨테이너와 높이를 맞추기 위해 flex-grow를 사용 */
 }
 
 .product-name {
@@ -506,4 +549,13 @@ p {
   font-weight: bold;
   margin-bottom: 4px;
 }
+
+.statistics > card {
+  display: flex;           /* Flexbox를 활성화합니다. */
+  flex-direction: column;  /* 아이템들을 세로로 정렬합니다. */
+  align-items: center;     /* 가로 방향에서 중앙 정렬을 적용합니다. */
+  justify-content: center; /* 세로 방향에서 중앙 정렬을 적용합니다. */
+  height: 100%;            /* 필요한 경우, 부모 요소로부터 높이를 100% 채웁니다. */
+}
+
 </style>
