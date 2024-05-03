@@ -279,6 +279,11 @@ export default {
   margin-right: 20px;
 }
 
+.category-card:hover,  .compare-category-card:hover, .spend-category-card:hover, .predict-category-card:hover{
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15)
+}
+
 .spend-category-card h3{
   font-size: 20px;
   font-weight: bold;

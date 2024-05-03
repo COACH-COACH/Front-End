@@ -105,11 +105,11 @@ export default {
   methods: {
     closeModal() {
       this.$emit('close');
-    }
+    },
     // Vue Router를 사용해서 목표 생성 경로로 이동
-    // goToGoalCreation() {
-    // this.$router.push('/path-to-goal-creation');
-  // }
+    goToGoalCreation() {
+    this.$router.push({ name: 'newGoal' });
+  }
   },
   
   setup(props) {

@@ -189,34 +189,55 @@ export default {
         this.quarterComparison = response.data.data;
         console.log("fetchQuarterData:", this.quarterComparison);
 
-        if (!this.quarterComparison || (Object.keys(this.quarterComparison.increase).length === 0 && Object.keys(response.data.decrease).length === 0)) {
-          this.increaseList = []; // 변동사항이 없을 때 리스트 초기화
-          this.decreaseList = [];      
-          this.quarterChangeMessage = "유의한 데이터 변동이 없습니다";
-          console.log(this.quarterChangeMessage);
+        if (!response.data || !this.quarterComparison || Object.keys(this.quarterComparison).length === 0) {
+            // 데이터가 없거나, 데이터 구조에 'increase'나 'decrease'가 없을 경우
+            this.increaseList = [];
+            this.decreaseList = [];
+            this.quarterChangeMessage = "유의한 데이터 변동이 없습니다.";
+            console.log(this.quarterChangeMessage);
         } else {
-          this.increaseList = this.processCategoryChanges(this.quarterComparison.increase, 'increase');
-          this.decreaseList = this.processCategoryChanges(this.quarterComparison.decrease, 'decrease');
-          this.quarterChangeMessage = "";
+            // 데이터 구조에 'increase'와 'decrease'가 존재하는지 확인 후 처리
+            this.handleData(this.quarterComparison);
         }
 
       } catch (error) {
-        console.error('분기 비교 데이터 로드 실패:', error);
-        this.quarterChangeMessage = "데이터 로드에 실패했습니다";
+        console.error('분기 비교 데이터 로드 실패:', error.response.data);
+        this.quarterChangeMessage = error.response.data.error;
+        // this.quarterChangeMessage = "데이터 로드에 실패했습니다";
       } finally {
         this.loading = false;
       }
     },
 
-    processCategoryChanges(changes, type) {
-      let message = type === 'increase' ? '+' : '-';
-      let result = Object.entries(changes).map(([key, value]) => {
-        let categoryName = this.categoryMap[key] || "분류되지 않은 카테고리";
-        return `${categoryName}: ${message} ${value * 1000}원`;
-      });
-      return result; 
-    }
+    handleData(data) {
+            if (data.increase && Object.keys(data.increase).length > 0) {
+                this.increaseList = this.processCategoryChanges(data.increase, 'increase');
+            } else {
+                this.increaseList = [];
+                console.log("소비가 늘어난 항목이 없습니다.");
+            }
 
+            if (data.decrease && Object.keys(data.decrease).length > 0) {
+                this.decreaseList = this.processCategoryChanges(data.decrease, 'decrease');
+            } else {
+                this.decreaseList = [];
+                console.log("소비가 줄어든 항목이 없습니다.");
+            }
+
+            // 두 목록 모두 비어있는 경우
+            if (this.increaseList.length === 0 && this.decreaseList.length === 0) {
+                this.quarterChangeMessage = "유의한 데이터 변동이 없습니다.";
+            } else {
+                this.quarterChangeMessage = ""; // 목록에 데이터가 있는 경우, 메시지를 비웁니다.
+            }
+        },
+
+    processCategoryChanges(changes, type) {
+        return Object.entries(changes).map(([key, value]) => {
+            let categoryName = this.categoryMap[key] || "분류되지 않은 카테고리";
+            return `${categoryName}: ${type === 'increase' ? '+' : '-'} ${value * 1000}원`;
+        });
+    }
   }
 };
 </script>
