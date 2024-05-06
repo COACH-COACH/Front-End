@@ -9,9 +9,8 @@ node {
         }
 
         stage('Build') {
-       		sh 'yes | sudo docker image prune -a'
-            sh 'echo $VUE_APP_API_URL'
-            sh 'sudo docker build -t vue-server --platform linux/amd64 --build-arg VUE_APP_API_URL=\${VUE_APP_API_URL} ./coach-coach'
+            sh 'yes | sudo docker image prune -a'
+            sh "sudo docker build -t vue-server --platform linux/amd64 --build-arg VUE_APP_API_URL=${env.VUE_APP_API_URL} ./coach-coach"
         }
 
         stage('Tag') {
