@@ -39,6 +39,7 @@ export default {
   methods: {
     async login() {
       const url = process.env.VUE_APP_API_URL + '/login';
+      console.log(url)
 
       const formData = new FormData();
       formData.append('loginId', this.loginId);
