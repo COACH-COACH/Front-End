@@ -11,8 +11,8 @@
         <div class = "banner-container">
           <div class="card-product" v-for="item in itemRecommendations" :key="item.idPk" 
           @click="goToProductDetail(item.idPk)">
-            <div class="card-title"> {{ item.productName }} </div>
-            <div class="interest-rate">최대금리 : <span class="highlight_card">{{ item.maxInterestRate }}</span>%</div>
+            <div class="card-product-title"> {{ item.productName }} </div>
+            <div class="interest-rate1">최대금리 : <span class="highlight_card">{{ item.maxInterestRate }}</span>%</div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
           </div>
         </div>
@@ -22,7 +22,7 @@
           <div class="card-product" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
           @click="goToProductDetail(cluster.idPk)">
             <div class="card-product-title"> {{ cluster.productName }} </div>
-            <div class="interest-rate">최대금리 : <span class="highlight_card">{{ cluster.maxInterestRate }}%</span></div>
+            <div class="interest-rate1">최대금리 : <span class="highlight_card">{{ cluster.maxInterestRate }}%</span></div>
             <div class="maturity">가입기간 : {{ cluster.maturity }}개월</div>
           </div>
         </div>
@@ -34,7 +34,7 @@
           <div class="card-product" v-for="item in itemRecommendations" :key="item.idPk"
           @click="goToProductDetail(item.idPk)">
             <div class="card-product-title"> {{ item.productName }} </div>
-            <div class="interest-rate">최대금리 : <span class="highlight_card">{{ item.maxInterestRate }}%</span></div>
+            <div class="interest-rate1">최대금리 : <span class="highlight_card">{{ item.maxInterestRate }}%</span></div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
           </div>
         </div>
@@ -46,7 +46,7 @@
           <div class="card-product" v-for="statics in staticRecommendations" :key="statics.idPk"
           @click="goToProductDetail(statics.idPk)">
             <div class="card-product-title"> {{ statics.productName }} </div>
-            <div class="interest-rate">최대금리 : {{ statics.maxInterestRate }}%</div>
+            <div class="interest-rate1">최대금리 : {{ statics.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ statics.maturity }}개월</div>
           </div>
         </div>
@@ -175,7 +175,7 @@ export default {
   transform: translateY(-5px);
 }
 
-.interest-rate {
+.interest-rate1 {
   background-color: #fafafa;
   padding: 8px 16px;
   margin: 0;
