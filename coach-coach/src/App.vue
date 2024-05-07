@@ -70,6 +70,7 @@ export default {
   font-weight: bold;
   color: #0262AC;
   text-decoration-line: none;
+  font-family: 'dohyeon';
 }
 
 .navigation ul {

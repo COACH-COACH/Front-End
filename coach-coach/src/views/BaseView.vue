@@ -1,9 +1,6 @@
 <template>
   <div class="main-view">
     <div class="main-slider">
-      <!-- 슬라이더 컨트롤 버튼 (이전) -->
-      <button class="slider-control left" @click="prevSlide">&lt;</button>
-
       <!-- 슬라이드들 -->
       <div class="slides" :style="innerStyle">
         <div class="slide" v-for="(slide) in slides" :key="slide.id">
@@ -18,35 +15,32 @@
           </div>
         </div>
       </div>
-
-      <button class="slider-control right" @click="nextSlide">&gt;</button>
     </div>
     
 
     <!-- 서비스 아이콘 섹션 -->
     <div class="service-section">
-      <div class="service-card" v-for="service in services" :key="service.id" @click="openModal(service.id)">
-        <img :src="service.iconUrl" :alt="service.altText">
-        <div class="service-description">
-          <h3>{{ service.title }}</h3>
-          <p>{{ service.description }}</p>
+      <div class="promotion-card1">
+        <h2>✨주요 기능✨</h2>
+      </div>
+      <div class="service-card" v-for="service in services" :key="service.id">
+        <div class="service-image-wrapper">
+          <img :src="service.iconUrl" :alt="service.altText" class="service-image">
+          <div class="overlay-banner">
+            <h3>{{ service.title }}</h3>
+          </div>
         </div>
       </div>
     </div>
     
     <!-- 프로모션 섹션 -->
     <div class="promotion-section">
-      <div class="promotion-card" v-for="promotion in promotions" :key="promotion.id">
-        <img :src="promotion.imageUrl" :alt="promotion.altText">
+      <div class="promotion-card">
+        <!-- <img :src="promotion.imageUrl" :alt="promotion.altText"> -->
         <div class="promotion-content">
-          <h4>{{ promotion.title }}</h4>
-          <p>{{ promotion.description }}</p>
+          <h2>✨팀 COACH-COACH를 소개합니다✨</h2>
+          <p></p>
         </div>
-      </div>
-      <!-- 모달 섹션 -->
-      <div class="modal" v-if="showModal">
-        <!-- 모달 내용 -->
-        <button @click="closeModal">Close</button>
       </div>
     </div> 
   </div>   
@@ -64,7 +58,7 @@ export default {
           imageUrl: require('@/assets/webee-removebg-preview.png'), // '@'는 src 디렉토리를 가리킵니다.
           altText: 'WIBEE-COACH를 소개합니다', 
           title: 'WIBEE-COACH를 소개합니다', 
-          description:'<p>고객 대상 생애주기별 자산 목표를 달성할 수 있도록 관리해 주는 웹서비스 입니다.</p> <p>1️⃣ 나만의 목표 생성! 목표 달성률을 실시간으로 확인할 수 있어요. 목표를 달성할 수 있도록 자금을 모아보세요.</p> <p>2️⃣ 목표를 달성하실 수 있게 위비코치가 소비와 저축 측면 모두에서 관리해 드려요!</p> <p>3️⃣ 나에게 맞는 예적금 상품을 추천받을 수 있어요!</p>'
+          description:'<p>고객 대상 생애주기별 자산 목표를 달성할 수 있도록 관리해 주는 웹서비스 입니다.</p> <p>1️⃣ 나만의 목표 생성! 목표 달성률을 실시간으로 확인할 수 있어요.</p> <p>&ensp; &ensp; 목표를 달성할 수 있도록 자금을 모아보세요.</p> <p>2️⃣ 목표를 달성하실 수 있게 위비코치가 소비와 저축 측면 모두에서 관리해 드려요!</p> <p>3️⃣ 나에게 맞는 예적금 상품을 추천받을 수 있어요!</p>'
         },
         { 
           id: 2, 
@@ -75,12 +69,11 @@ export default {
         }        
         ],
       services: [
-        { id: 1, iconUrl: 'path/to/icon1.png', title: '서비스 1', description: '설명 1' },
-        { id: 2, iconUrl: 'path/to/icon2.png', title: '서비스 2', description: '설명 2' },
-        { id: 3, iconUrl: 'path/to/icon3.png', title: '서비스 3', description: '설명 3' }
+        { id: 1, iconUrl: require('@/assets/chatbot.jpg'), title: '맞춤 뉴스 추천 및 목표 달성 어드바이저' },
+        { id: 2, iconUrl: require('@/assets/recommendation2.jpg'), title: '적금 상품 추천 서비스' },
+        { id: 3, iconUrl: require('@/assets/prediction.jpg'), title: '소비 예측 서비스' }
       ],      
       currentSlideIndex: 0,
-      showModal: false
     };
   },
   computed: {
@@ -90,34 +83,29 @@ export default {
         display: 'flex',
       };  
     }
-  },
-  methods: {
-    nextSlide() {
-      this.currentSlideIndex = (this.currentSlideIndex + 1) % this.slides.length;
-    },
-    prevSlide() {
-      this.currentSlideIndex = (this.currentSlideIndex + this.slides.length - 1) % this.slides.length;
-    },
-
-    openModal(id) {
-      // 여기에 모달을 열 때 필요한 로직을 구현합니다.
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
-    }
   }
 };
 </script>
 
 <style>
+
+/* 폰트 */
+@font-face {
+  font-family: 'dohyeon';
+  src: url('../../fonts/BMDOHYEON_ttf.ttf');
+}
+@font-face {
+  font-family: 'gmarketSans';
+  src: url('../../fonts/GmarketSansTTFMedium.ttf');
+}
+
 /* 전체 페이지에 대한 기본 스타일 */
 body, html {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  font-family: 'Arial', sans-serif;
+  font-family: 'gmarketSans';
 }
 
 .main-view {
@@ -127,7 +115,6 @@ body, html {
 
 /* 메인 슬라이더 섹션의 스타일 */
 .main-slider {
-  margin-top: 50px;
   margin-bottom: 25px;
   position: relative;
   width: 100%;
@@ -181,23 +168,26 @@ body, html {
   padding: 20px;
   box-sizing: border-box;
 }
+
 .slide-text-content h2 {
   font-size: 50px; /* 폰트 크기를 원하는 값으로 변경하세요. */
   color: #0067AC;
+  font-family: 'dohyeon';
   
 }
+
 .slide-image-content {
   width: 50%;
   /* 이미지 스타일링 */
 }
 
-img {
+/* img {
   max-width : 350px;
   width: 350px;
   height: auto;
   display: block;
   object-fit: cover;
-}
+} */
 
 .slider-control {
   position: absolute;
@@ -213,23 +203,57 @@ img {
 /* 서비스 아이콘 섹션의 스타일 */
 .service-section {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   background-color: #0067AC;
   padding: 20px 0;
 }
 
+.service-section h2 {
+  color:#fff;
+  font-family: 'dohyeon';
+}
+
 .service-card {
-  width: 150px; /* 카드의 너비 조정 */
-  margin: 0 10px;
-  padding: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* 카드에 그림자 효과 추가 */
-  background-color: #fff; /* 카드 배경색 변경 */
+  position: relative;
+  /* display: flex; */
+  flex-direction: column;
+  align-items: center;
+  width: 250px;
+  height: 300px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #f5f5f5;
+  text-align: center;
+}
+
+.service-image-wrapper {
+  width: 100%;
+  height: 100%;
+  border-bottom: 2px solid #e0e0e0;
+  background: #fff;
+}
+
+.service-image {
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  object-fit: cover;
 }
 
 .service-description {
   /* 서비스 설명 텍스트 스타일 개선 */
   margin-top: 10px;
+}
+
+.service-description h3 {
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.service-description p {
+  font-size: 12px;
+  color: #888;
 }
 
 /* 프로모션 섹션의 스타일 */
@@ -246,10 +270,26 @@ img {
   text-align: center; /* 텍스트를 중앙에 배치 */
 }
 
+.promotion-card h2{
+  font-family: 'dohyeon';
+}
+
 .highlight_card {
   font-weight: bolder; /* 굵게 */
   font-size: larger; /* 크기 증가 */
   color: #FEE101;
+}
+
+.overlay-banner {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 103, 172, 0.8);
+  /* background: rgba(0, 0, 0, 0.5); */
+  color: white;
+  text-align: center;
+  padding: 3px 0;
+  font-size: 1.2em;
 }
 
 </style>
