@@ -27,7 +27,7 @@ export default {
 
   methods: {
     async fetchELKDataUsingToken() {
-    const url = 'http://localhost:8080/user/data';
+    const url = process.env.VUE_APP_API_URL + '/user/data';
     const token = this.getToken;
 
     try {
