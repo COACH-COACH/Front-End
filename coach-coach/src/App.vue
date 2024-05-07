@@ -68,7 +68,7 @@ export default {
 .logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #FEE101;
+  color: #0262AC;
   text-decoration-line: none;
 }
 

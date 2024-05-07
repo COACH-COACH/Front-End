@@ -1,7 +1,7 @@
 <template>
     <div class="predict-class">
         <h2>😎위비코치가 고객님의 다음 분기 소비를 예측해 봤어요!</h2>
-        <div v-if="loading" class="loading-container">
+        <div v-if="loading" class="loading-overlay">
             <span class="loader"><p align="middle">로딩 중...</p></span>
         </div>
         

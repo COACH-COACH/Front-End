@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <!--로딩 메시지-->
-    <div v-if="isLoading" class="loading-message">
-      <h1> 고객님 맞춤 예적금 상품을 찾고 있습니다! <br> 잠시만 기다려주세요... </h1>
+    <div v-if="isLoading" class="loading-overlay">
+      <img src="@/assets/loading.gif" alt="고객님 맞춤 예적금 상품을 찾고 있습니다! 잠시만 기다려주세요..." />
     </div>
   
     <template v-else>
@@ -102,6 +102,7 @@ export default {
         });
         this.isLoading = false;
         this.adminResponse = response.data; // Admin 페이지 응답 저장
+        console.log(response.data);
         const data = await response.json();
         console.log('Received data:', data);
         if (data) {
@@ -131,11 +132,21 @@ export default {
 }
 
 /* 로딩 애니메이션 */
-.loading-container {
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* 배경을 약간 어둡게 처리 */
+}
+
+.loading-overlay img {
+  width: 120px; /* GIF 이미지 크기 조절 */
+  height: auto;
 }
 
 .loading-animation {
