@@ -9,7 +9,7 @@
       <div v-if="itemRecommendations.length > 0 && clusterRecommendations.length > 0">
         <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #FFD43B;" /> 고객님의 과거 상품과 유사한 상품을 추천해드려요</h2>
         <div class = "banner-container">
-          <div class="card" v-for="item in itemRecommendations" :key="item.idPk" 
+          <div class="card-product" v-for="item in itemRecommendations" :key="item.idPk" 
           @click="goToProductDetail(item.idPk)">
             <div class="card-title"> {{ item.productName }} </div>
             <div class="interest-rate">최대금리 : <span class="highlight_card">{{ item.maxInterestRate }}</span>%</div>
@@ -19,9 +19,9 @@
 
         <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #FFD43B;" /> 고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h2>
         <div class = "banner-container">
-          <div class="card" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
+          <div class="card-product" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
           @click="goToProductDetail(cluster.idPk)">
-            <div class="card-title"> {{ cluster.productName }} </div>
+            <div class="card-product-title"> {{ cluster.productName }} </div>
             <div class="interest-rate">최대금리 : <span class="highlight_card">{{ cluster.maxInterestRate }}%</span></div>
             <div class="maturity">가입기간 : {{ cluster.maturity }}개월</div>
           </div>
@@ -31,9 +31,9 @@
       <div v-else-if="itemRecommendations.length > 0">
         <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #FFD43B;" /> 고객님의 과거 상품과 유사한 상품을 추천해드려요</h2>
         <div class = "banner-container">
-          <div class="card" v-for="item in itemRecommendations" :key="item.idPk"
+          <div class="card-product" v-for="item in itemRecommendations" :key="item.idPk"
           @click="goToProductDetail(item.idPk)">
-            <div class="card-title"> {{ item.productName }} </div>
+            <div class="card-product-title"> {{ item.productName }} </div>
             <div class="interest-rate">최대금리 : <span class="highlight_card">{{ item.maxInterestRate }}%</span></div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
           </div>
@@ -43,9 +43,9 @@
       <div v-else-if="staticRecommendations.length > 0">
         <h2><font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #FFD43B;" />고객님과 같은 생애주기를 지나고 있는 다른 고객님들이 많이 찾은 상품이에요</h2>
         <div class = "banner-container">
-          <div class="card" v-for="statics in staticRecommendations" :key="statics.idPk"
+          <div class="card-product" v-for="statics in staticRecommendations" :key="statics.idPk"
           @click="goToProductDetail(statics.idPk)">
-            <div class="card-title"> {{ statics.productName }} </div>
+            <div class="card-product-title"> {{ statics.productName }} </div>
             <div class="interest-rate">최대금리 : {{ statics.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ statics.maturity }}개월</div>
           </div>
@@ -125,7 +125,7 @@ export default {
 </script>
 
 <style>
-.card {
+.card-product {
   flex: 0 0 auto;
   margin-right: 16px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -138,7 +138,7 @@ export default {
   transition: transform 0.3s ease-in-out;
 }
 
-.card-title {
+.card-product-title {
   width: 100%;
   /* 부모의 전체 너비 */
   border-radius: 20px 20px 0px 0px;
@@ -171,7 +171,7 @@ export default {
   margin: 20px 0;  
 }
 
-.card:hover {
+.card-product:hover {
   transform: translateY(-5px);
 }
 

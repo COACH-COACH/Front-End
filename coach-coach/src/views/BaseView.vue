@@ -21,6 +21,7 @@
 
       <button class="slider-control right" @click="nextSlide">&gt;</button>
     </div>
+    
 
     <!-- 서비스 아이콘 섹션 -->
     <div class="service-section">
@@ -61,8 +62,8 @@ export default {
         { 
           id: 1, 
           imageUrl: require('@/assets/webee-removebg-preview.png'), // '@'는 src 디렉토리를 가리킵니다.
-          altText: 'WiBee-Coach를 소개합니다', 
-          title: 'WiBee-Coach를 소개합니다', 
+          altText: 'WIBEE-COACH를 소개합니다', 
+          title: 'WIBEE-COACH를 소개합니다', 
           description:'<p>고객 대상 생애주기별 자산 목표를 달성할 수 있도록 관리해 주는 웹서비스 입니다.</p> <p>1️⃣ 나만의 목표 생성! 목표 달성률을 실시간으로 확인할 수 있어요. 목표를 달성할 수 있도록 자금을 모아보세요.</p> <p>2️⃣ 목표를 달성하실 수 있게 위비코치가 소비와 저축 측면 모두에서 관리해 드려요!</p> <p>3️⃣ 나에게 맞는 예적금 상품을 추천받을 수 있어요!</p>'
         },
         { 
@@ -119,6 +120,11 @@ body, html {
   font-family: 'Arial', sans-serif;
 }
 
+.main-view {
+    margin: 0;
+    background-color: #EAF5FD;
+}
+
 /* 메인 슬라이더 섹션의 스타일 */
 .main-slider {
   margin-top: 50px;
@@ -126,7 +132,6 @@ body, html {
   position: relative;
   width: 100%;
   height: 400px; /* 높이는 디자인에 맞게 조절 */
-  background-color: rgb(255,255,255); /* 배경색은 예시입니다 */
   position: relative;
   overflow: hidden; /* 이미지가 슬라이더 밖으로 넘치지 않도록 */
 }
@@ -178,7 +183,7 @@ body, html {
 }
 .slide-text-content h2 {
   font-size: 50px; /* 폰트 크기를 원하는 값으로 변경하세요. */
-  color: #FEE101;
+  color: #0067AC;
   
 }
 .slide-image-content {
@@ -239,6 +244,12 @@ img {
 .promotion-card {
   margin: 0 15px;
   text-align: center; /* 텍스트를 중앙에 배치 */
+}
+
+.highlight_card {
+  font-weight: bolder; /* 굵게 */
+  font-size: larger; /* 크기 증가 */
+  color: #FEE101;
 }
 
 </style>
