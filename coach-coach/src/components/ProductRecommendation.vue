@@ -7,34 +7,34 @@
   
     <template v-else>
       <div v-if="itemRecommendations.length > 0 && clusterRecommendations.length > 0">
-        <h1>고객님의 과거 상품과 유사한 상품을 추천해드려요</h1>
+        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #B197FC;" /> 고객님의 과거 상품과 유사한 상품을 추천해드려요</h2>
         <div class = "banner-container">
-          <div class="banner" v-for="item in itemRecommendations" :key="item.idPk" 
+          <div class="card" v-for="item in itemRecommendations" :key="item.idPk" 
           @click="goToProductDetail(item.idPk)">
-            <div class="reco-product-name"> {{ item.productName }} </div>
-            <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
+            <div class="card-title"> {{ item.productName }} </div>
+            <div class="interest-rate">최대금리 : <span class="highlight_card">{{ item.maxInterestRate }}</span>%</div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
           </div>
         </div>
 
-        <h1>고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h1>
+        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #B197FC;" /> 고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h2>
         <div class = "banner-container">
-          <div class="banner" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
+          <div class="card" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
           @click="goToProductDetail(cluster.idPk)">
-            <div class="reco-product-name"> {{ cluster.productName }} </div>
-            <div class="interest-rate">최대금리 : {{ cluster.maxInterestRate }}%</div>
+            <div class="card-title"> {{ cluster.productName }} </div>
+            <div class="interest-rate">최대금리 : <span class="highlight_card">{{ cluster.maxInterestRate }}%</span></div>
             <div class="maturity">가입기간 : {{ cluster.maturity }}개월</div>
           </div>
         </div>
       </div>
 
       <div v-else-if="itemRecommendations.length > 0">
-        <h1>고객님의 과거 상품과 유사한 상품을 추천해드려요</h1>
+        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #B197FC;" /> 고객님의 과거 상품과 유사한 상품을 추천해드려요</h2>
         <div class = "banner-container">
-          <div class="banner" v-for="item in itemRecommendations" :key="item.idPk"
+          <div class="card" v-for="item in itemRecommendations" :key="item.idPk"
           @click="goToProductDetail(item.idPk)">
-            <div class="reco-product-name"> {{ item.productName }} </div>
-            <div class="interest-rate">최대금리 : {{ item.maxInterestRate }}%</div>
+            <div class="card-title"> {{ item.productName }} </div>
+            <div class="interest-rate">최대금리 : <span class="highlight_card">{{ item.maxInterestRate }}%</span></div>
             <div class="maturity">가입기간 : {{ item.maturity }}개월</div>
           </div>
         </div>
@@ -125,6 +125,71 @@ export default {
 </script>
 
 <style>
+.card {
+  flex: 0 0 auto;
+  margin-right: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  text-align: left;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: transform 0.3s ease-in-out;
+}
+
+.card-title {
+  width: 100%;
+  /* 부모의 전체 너비 */
+  border-radius: 20px 20px 0px 0px;
+  background-color: #0262AC;
+  color: white;
+  /* 이미지보다 위에 오도록 설정 */
+  padding: 12px 16px;
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.card-content {
+  width: 100%;
+  border-radius: 0px 0px 20px 20px;
+  background-color: white;
+  padding: 0px 18px 0px 18px;
+  z-index: 0;
+}
+
+/* 배너 스타일 */
+.banner-container {
+  display: flex;
+  flex-direction:row;
+  width: 100%;
+  overflow-x: auto;
+  background-color: #f0f8ff;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;  
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.interest-rate {
+  background-color: #fafafa;
+  padding: 8px 16px;
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.maturity {
+  background-color: #fafafa;
+  padding: 10px 16px;
+  margin: 0;
+  font-size: 1em;
+}
+
 /* 전체 컨테이너 */
 .container {
   max-width: 1200px;
@@ -172,48 +237,15 @@ export default {
   margin-top: 20px;
 }
 
-/* 배너 스타일 */
-.banner-container {
-  display: flex;
-  flex-direction:row;
-  width: 100%;
-  overflow-x: auto;
-  padding: 10px 0;
+.highlight_card {
+  font-weight: bolder; /* 굵게 */
+  font-size: larger; /* 크기 증가 */
+  color: #ff0000;
 }
 
-.banner {
-  flex: 0 0 auto;
-  margin-right: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  border-radius: 8px;
-  overflow: hidden;
-  transition: transform 0.3s ease-in-out;
-}
-
-.banner:hover {
-  transform: translateY(-5px);
-}
-
-.reco-product-name {
-  background-color: #f5f5f5;
-  padding: 12px 16px;
-  margin: 0;
-  font-size: 1.1em;
-  font-weight: bold;
-}
-
-.interest-rate {
-  color: #d32f2f;
-  padding: 8px 16px;
-  margin: 0;
+.container h2{
+  color: #292929;
   font-size: 1.5em;
-  font-weight: bold;
-}
-
-.maturity {
-  background-color: #fafafa;
-  padding: 10px 16px;
-  margin: 0;
-  font-size: 1em;
+  
 }
 </style>

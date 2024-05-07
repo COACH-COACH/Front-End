@@ -349,6 +349,11 @@ export default {
   min-width: 100px;
 }
 
-
+.container{
+  background-color: #f0f8ff;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
 
 </style>
