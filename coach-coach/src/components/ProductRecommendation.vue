@@ -7,7 +7,7 @@
   
     <template v-else>
       <div v-if="itemRecommendations.length > 0 && clusterRecommendations.length > 0">
-        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #B197FC;" /> 고객님의 과거 상품과 유사한 상품을 추천해드려요</h2>
+        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #FFD43B;" /> 고객님의 과거 상품과 유사한 상품을 추천해드려요</h2>
         <div class = "banner-container">
           <div class="card" v-for="item in itemRecommendations" :key="item.idPk" 
           @click="goToProductDetail(item.idPk)">
@@ -17,7 +17,7 @@
           </div>
         </div>
 
-        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #B197FC;" /> 고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h2>
+        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #FFD43B;" /> 고객님과 비슷한 특징을 가지고 계신 고객님들이 많이 찾은 상품이에요</h2>
         <div class = "banner-container">
           <div class="card" v-for="cluster in clusterRecommendations" :key="cluster.idPk"
           @click="goToProductDetail(cluster.idPk)">
@@ -29,7 +29,7 @@
       </div>
 
       <div v-else-if="itemRecommendations.length > 0">
-        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #B197FC;" /> 고객님의 과거 상품과 유사한 상품을 추천해드려요</h2>
+        <h2> <font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #FFD43B;" /> 고객님의 과거 상품과 유사한 상품을 추천해드려요</h2>
         <div class = "banner-container">
           <div class="card" v-for="item in itemRecommendations" :key="item.idPk"
           @click="goToProductDetail(item.idPk)">
@@ -41,11 +41,11 @@
       </div>
 
       <div v-else-if="staticRecommendations.length > 0">
-        <h1>고객님과 같은 생애주기를 지나고 있는 다른 고객님들이 많이 찾은 상품이에요</h1>
+        <h2><font-awesome-icon :icon="['fas', 'wand-magic-sparkles']" style="color: #FFD43B;" />고객님과 같은 생애주기를 지나고 있는 다른 고객님들이 많이 찾은 상품이에요</h2>
         <div class = "banner-container">
-          <div class="banner" v-for="statics in staticRecommendations" :key="statics.idPk"
+          <div class="card" v-for="statics in staticRecommendations" :key="statics.idPk"
           @click="goToProductDetail(statics.idPk)">
-            <div class="reco-product-name"> {{ statics.productName }} </div>
+            <div class="card-title"> {{ statics.productName }} </div>
             <div class="interest-rate">최대금리 : {{ statics.maxInterestRate }}%</div>
             <div class="maturity">가입기간 : {{ statics.maturity }}개월</div>
           </div>
