@@ -2,7 +2,8 @@
     <div class="predict-class">
         <h2>😎위비코치가 고객님의 다음 분기 소비를 예측해 봤어요!</h2>
         <div v-if="loading" class="loading-overlay">
-            <span class="loader"><p align="middle">로딩 중...</p></span>
+          <img src="@/assets/loading.gif" alt="Loading..." />
+           <!--  <span class="loader"><p align="middle">로딩 중...</p></span> -->
         </div>
         
         <div class="cards-container" v-else>
@@ -81,7 +82,7 @@ export default {
 
   methods: {
     async fetchELKDataUsingToken() {
-      const url = process.env.VUE_APP_API_URL + '/user/data';
+      const url = process.env.VUE_APP_API_URL + '/advisor/getAdvice' + '/user/data';
       const token = this.getToken;
 
       try {
@@ -108,7 +109,7 @@ export default {
     async accessAdminPage() {
       this.loading = true; // 로딩 상태 시작
 
-      const url = process.env.VUE_APP_API_URL + '/user/invoke-flask';
+      const url = 'http://localhost:8080/user/invoke-flask';
 
       try {
         const token = this.getToken; // Vuex 스토어에서 토큰 가져오기
@@ -226,6 +227,18 @@ export default {
 </script>
 
 <style>
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* 배경을 약간 어둡게 처리 */
+}
+
 .predict-class h2 {
     padding: 10px;
 }
@@ -343,4 +356,23 @@ p {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* 로딩 애니메이션 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* 배경을 약간 어둡게 처리 */
+}
+
+.loading-overlay img {
+  width: 120px; /* GIF 이미지 크기 조절 */
+  height: auto;
+}
+
 </style>
