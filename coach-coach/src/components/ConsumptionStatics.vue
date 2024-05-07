@@ -4,7 +4,7 @@
             <h3>내가 가장 많이 소비한 항목을 확인해 보세요!</h3>
             <div class="spend-category-card" v-if="this.spendCategory">
                 <p v-if="displayMessage">{{ displayMessage }}</p>
-                <h3 v-else>지난 기간 동안 <span class="highlight">{{ categoryName }}</span> 항목에 가장 많은 소비를 하셨습니다! 총 <span class="highlight">{{ categoryAmt }}원</span> 지출하셨어요. </h3>
+                <h3 v-else>지난 기간 동안<br/> <span class="highlight">{{ categoryName }}</span> 항목에 가장 많은 소비를 하셨습니다!<br/><br/>총 <span class="highlight">{{ numberFormat(categoryAmt) }}</span> 지출하셨어요. </h3>
             </div>     
         </div>
 
@@ -235,8 +235,11 @@ export default {
     processCategoryChanges(changes, type) {
         return Object.entries(changes).map(([key, value]) => {
             let categoryName = this.categoryMap[key] || "분류되지 않은 카테고리";
-            return `${categoryName}: ${type === 'increase' ? '+' : '-'} ${value * 1000}원`;
+            return `${categoryName}: ${type === 'increase' ? '+' : ''} ${value * 1000}원`;
         });
+    },
+    numberFormat(value) {
+      return new Intl.NumberFormat('ko-KR').format(value) + '원';
     }
   }
 };

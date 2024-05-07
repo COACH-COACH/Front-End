@@ -9,7 +9,7 @@
         <div class="cards-container" v-else>
             <div class="predict-category-card">          
                 <div v-if="adminResponse">
-                    <p align="middle">다음 분기에 {{ formattedAdminResponse }}원 지출할 것으로 예상돼요!</p>
+                    <p align="middle">다음 분기에 {{ numberFormat(formattedAdminResponse) }} 지출할 것으로 예상돼요!</p>
                 </div>
                 <div v-else>
                     <p>다음 분기 지출액을 예측할 수 없습니다.</p>
@@ -109,7 +109,7 @@ export default {
     async accessAdminPage() {
       this.loading = true; // 로딩 상태 시작
 
-      const url = 'http://localhost:8080/user/invoke-flask';
+      const url = process.env.VUE_APP_API_URL + '/user/invoke-flask';
 
       try {
         const token = this.getToken; // Vuex 스토어에서 토큰 가져오기
@@ -184,6 +184,10 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+
+    numberFormat(value) {
+      return new Intl.NumberFormat('ko-KR').format(value) + '원';
     },
 
     renderChart(){
