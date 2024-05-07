@@ -1,166 +1,274 @@
 <template>
   <div class="container mt-4">
     <div class="row">
-      <div class="col-12 col-sm-6 col-md-4" v-for="(newsItem, index) in paginatedNews" :key="index">
-        <div class="card news-card" @click="selectNewsItem(newsItem)">
-          <div class="card-image">
-            <img :src="newsItem.img" alt="news-image" class="card-img-top">
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">{{ newsItem.title }}</h3>
-            <h6 class="card-subtitle mb-2 text-muted">{{ newsItem.date }}</h6>
-            <div v-if="newsItem.keywords && newsItem.keywords.length" class="keyword-wrapper">
-              <span class="badge bg-info me-1"
-                v-for="(keyword, kIndex) in newsItem.keywords" 
-                :key="`${index}-${kIndex}`">#{{ keyword }}</span>
-            </div>
-            <p class="card-text">
-              {{ formatText(truncate(checkString(newsItem.description)), 250) }}
-            </p>
-          </div>
-          <button class="btn-primary" @click="openLink(newsItem.url)">
-            원문 보기
-          </button>
+      <div class="col-12">
+        <div class="button-container">
+          <button class="btn btn-primary mx-2" 
+                  :class="{ active: selectedGoal === '전체' }"
+                  @click="filterNews('전체')">전체</button>
+          <button class="btn btn-primary mx-2" v-for="goal in goals" :key="goal.goalName"
+                  :class="{ active: selectedGoal === goal.goalName }"
+                  @click="filterNews(goal.goalName)">{{ goal.goalName }}</button>
         </div>
       </div>
+      <div class="col-12 col-sm-6 col-md-4" v-for="(newsItem, index) in paginatedNews" :key="index">
+        <div class="card news-card" @click="selectNewsItem(newsItem)">
+          <div class="card-image" @mouseover="hover = true" @mouseleave="hover = false">
+            <img :src="newsItem.img" @error="imageError" alt="news image" class="card-img-top">
+            <button class="btn btn-secondary view-original" v-if="hover" @click.stop="openLink(newsItem.url)">
+              원문 보러 가기
+            </button>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ newsItem.title }}</h5>
+            <p class="card-subtitle mb-2 text-muted">{{ newsItem.date }}</p>
+            <p class="card-text">{{ truncate(newsItem.description, 100) }}</p>
+          </div>
+        </div>
+      </div>
+        <div class="pagination">
+          <button @click="changePage(-1)" :disabled="page === 1">Previous</button>
+          <button @click="changePage(1)" :disabled="page * perPage >= filteredNews.length">Next</button>
+        </div>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import axios from 'axios';
 
 export default {
+  props: ['userGoals'],
   computed: {
-    // Vuex store에서 토큰 가져오기
     ...mapGetters(['getToken']),
-    // 총 페이지 수 계산 (현재는 사용되지 않음)
-    // totalPages() {
-    //   return Math.ceil(this.news.length / this.perPage);
-    // },
-
-    // 현재 페이지의 뉴스 데이터를 계산
     paginatedNews() {
       const start = (this.page - 1) * this.perPage;
       const end = start + this.perPage;
-      return this.news.slice(start, end);
+      return this.filteredNews.slice(start, end);
     },
-  },  
+    filteredNews() {
+      if (this.selectedGoal === '전체') {
+        return this.news;
+      } else {
+        return this.news.filter(item => item.keywords.includes(this.selectedGoal));
+      }
+    }
+  },
   data() {
     return {
-      news: [], // 뉴스 데이터를 저장하는 배열
-      page: 1, // 현재 페이지 번호
-      perPage: 5, // 페이지당 표시할 뉴스 수
-      selectedNewsItem: null, // 선택된 뉴스 아이템
-      isNewsViewVisible: false, // 뉴스 상세보기의 표시 여부
+      hover: false,
+      news: [],
+      filteredNews: [],
+      page: 1,
+      perPage: 6,
+      selectedNewsItem: null,
+      isNewsViewVisible: false,
+      goals: [],
+      selectedGoal: "전체",
+      lifeStage: "",
+      defaultImage: "https://ifh.cc/g/x8Xt21.jpg"
     };
   },
   async mounted() {
-  await this.fetchNews();  // 뉴스 데이터 가져오기 
+    await this.fetchNews();
+    await this.fetchGoals();
   },
   methods: {
-    // 문자열이 아닐 경우 문자열로 변환
-    checkString(value) {
-      return typeof value === 'string' ? value : String(value);
+    imageError(event) {
+      event.target.src = this.defaultImage;
     },
-    // 뉴스 3줄 이후 더보기 처리하는 함수
-    truncate(text, maxLength) {
-      if (!text) return '';
-      if (text.length > maxLength) {
-        return text.substring(0, maxLength - 3) + '...더보기'; // 초과하는 경우 축약
-      }
-      return text;
+    changePage(direction) {
+      this.page += direction;
     },
-    // 선택된 뉴스의 상세내용을 보여주는 함수
-    toggleDescription(index) {
-      this.news = this.news.map((item, i) => {
-        if (i === index) {
-          return { ...item, expanded: !item.expanded }; // 현재 아이템 토글
-        }
-        return { ...item, expanded: false }; // 나머지는 닫기
+    equalizeHeights() {
+      this.$nextTick(() => {
+        const cards = Array.from(document.querySelectorAll('.news-card'));
+        const maxHeight = Math.max(...cards.map(card => card.offsetHeight));
+        cards.forEach(card => card.style.height = `${maxHeight}px`);
       });
     },
-    // \n을 <br>로 변환해주는 함수
-    formatText(text) {
-      return text.replace(/\n/g, '<br>');
-    },
-    // 뉴스 API 가져오기
     async fetchNews() {
       const url = process.env.VUE_APP_API_URL + '/news/list';
       try {
         const token = this.getToken;
-        if (!token) {
-          console.error('로그인하세요.');
-          return;
-        }
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `${token}`,
-                'Content-Type': 'application/json'
-            },
+        const response = await axios.get(url, {
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json'
+          },
         });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const news_data = await response.json();
-        if (Array.isArray(news_data.data)) {
-            this.news = news_data.data.map(item => ({
-                title: item.newsTitle || '제목이 없어요.',
-                date: item.newsDate || '날짜가 없어요.',
-                description: item.newsDescription || '내용이 없어요.',
-                keywords: item.newsKeywords ? item.newsKeywords.split(',') : [],
-                url: item.newsUrl || '#',
-                img: item.newsImg || '#' 
-            }));
-        } else {
-            console.error('데이터가 배열 형태가 아닙니다', news_data);
-            this.news = [];
+        if (response.data && Array.isArray(response.data.data)) {
+          this.news = response.data.data.map(item => ({
+            title: item.newsTitle || '제목이 없어요.',
+            date: item.newsDate || '날짜가 없어요.',
+            description: item.newsDescription || '내용이 없어요.',
+            keywords: item.newsKeywords ? item.newsKeywords.split(',') : [],
+            url: item.newsUrl || '#',
+            img: item.newsImg || '#' 
+          }));
+          this.filterNews(this.selectedGoal); // Initial filter upon data fetch
         }
       } catch (error) {
         console.error('뉴스를 가져오는 과정에서 에러가 발생했습니다.:', error);
+      }
+    },
+    async fetchGoals() {
+      const url = process.env.VUE_APP_API_URL + '/goal/list';
+      try {
+        const token = this.getToken;
+        const response = await axios.get(url, {
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json'
+          },
+        });
+        if (response.data && Array.isArray(response.data.data)) {
+          this.goals = response.data.data;
+        }
+      } catch (error) {
+        console.error('목표 데이터를 가져오는 과정에서 에러가 발생했습니다.:', error);
+      }
+    },
+    filterNews(goalName) {
+      this.selectedGoal = goalName;
+      if (goalName === '전체') {
+        this.filteredNews = this.news;
+      } else {
+        this.filteredNews = this.news.filter(item =>
+          item.keywords.some(keyword => {
+            // '-' 기호를 기준으로 문자열을 분리하고 두 번째 부분을 가져옴
+            const goalPart = keyword.split('-')[1]?.trim().toLowerCase();
+            return goalPart === goalName.toLowerCase();
+          })
+        );
       }
     },
     selectNewsItem(item) {
       this.selectedNewsItem = item;
       this.isNewsViewVisible = !this.isNewsViewVisible;
     },
-    // 새 탭에서 URL 열기
     openLink(url) {
-      window.open(url, '_blank'); 
+      window.open(url, '_blank');
+    },
+    truncate(text, maxLength) {
+      if (text.length > maxLength) {
+        return text.substring(0, maxLength - 3) + '...더보기';
+      }
+      return text;
     },
   }
 };
 </script>
 
 <style scoped>
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.btn-primary.active, .btn-primary:active {
+  background-color: #0083CA;
+  color: #FFFFFF;
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
+}
+
+.news-card-container {
+  margin-bottom: 20px;
+}
+
 .news-card {
-  background-color: #ffffff;
-  border: 1px solid #0083CA;
+  background-color: #f5f5f5;
   border-radius: 12px;
-  margin: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+
+@media (max-width: 768px) {
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn-secondary, .btn-secondary:active {
+  background-color: transparent;
+  border-radius: 5px;
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+}
+
+.news-card {
+  width: calc(33.333% - 40px); /* Adjusts card width to fit 3 per row */
+  margin: 10px;
+  float: left;
+  background-color: #f5f5f5;
+  border-radius: 12px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease-in-out;
   color: #333;
+  height: 450px;
 }
+
+.card-image {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.view-original {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  z-index: 10;
+}
+.card-img-top {
+  width: 100%; 
+  height: 100%;
+  object-fit: cover;
+}
+.card-image:hover .card-img-top {
+  filter: brightness(50%);
+
+}
+
+.card-image:hover .view-original {
+  display: block;
+}
+
+
 
 .news-card:hover {
   transform: translateY(-5px);
   border-color: #0083CA;
 }
 
-.card-footer {
-  border-top: 1px solid #0067AC;
-}
 
 .card-title {
-  color: #0067AC;
+  color: #6b6b6b;
   font-size: 18px;
+  margin: 10px;
 }
 
 .card-text {
   font-size: 16px;
   line-height: 1.6;
+  color: #6b6b6b;
+  margin: 15px;
 }
 
 .badge {
@@ -173,20 +281,32 @@ export default {
 }
 
 .btn-primary {
-  background-color: #FFFFFF;
+  background-color: #F5F5F5;
   border-radius: 10px;
+  border-color: transparent;
   padding: 5px 10px;
-  margin: 0 5px 5px 0;
+  margin: 0 10px 10px 0;
   display: inline-block;
 }
 
 .btn-primary:hover {
   background-color: #0083CA;
 }
-.card-image {
 
+.btn-primary:active {
+  background-color: #0083CA;
+}
+
+.card-subtitle{
+  color: #9d9d9d;
+  margin: 10px;
+}
+
+.col-12 {
+  margin-top: 20px;
 }
 .card-img-top {
+  display: block;
   width: 100%;
   height: auto;
   border-radius: 12px 12px 0 0;
