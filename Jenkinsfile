@@ -9,7 +9,7 @@ node {
         }
 
         stage('Build') {
-            sh 'yes | sudo docker rmi -f $(sudo docker images -q)'
+            sh 'yes | sudo docker image prune -a'
             sh "sudo docker build --no-cache -t vue-server --platform linux/amd64 --build-arg VUE_APP_API_URL=${env.VUE_APP_API_URL} ./coach-coach"
         }
 
