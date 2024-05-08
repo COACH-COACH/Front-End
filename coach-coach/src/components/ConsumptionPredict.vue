@@ -178,7 +178,10 @@ export default {
     },
 
     numberFormat(value) {
-      return new Intl.NumberFormat('ko-KR').format(value) + '원';
+      return new Intl.NumberFormat('ko-KR', {
+        minimumFractionDigits: 0, // 소수점 아래 최소 자릿수
+        maximumFractionDigits: 0  // 소수점 아래 최대 자릿수
+      }).format(value) + '원';
     },
 
     sortChartData() {

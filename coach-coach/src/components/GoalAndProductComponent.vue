@@ -93,7 +93,7 @@
           <div class="card">
             <progress-circle :percentage="goal.goalStat.proportion.toFixed(1)"></progress-circle>
             <p>고객님 또래의 {{ goal.goalStat.proportion.toFixed(1) }}%가 해당 목표를 향해 달려가고 있어요</p>
-            <p>해당 목표로 모인 평균 금액은 {{ numberFormat(goal.goalStat.avgAmt) }} 입니다.</p>
+            <p>해당 목표로 모인 평균 금액은 약 {{ numberFormat(goal.goalStat.avgAmt) }} 입니다.</p>
           </div>
 
         </div>
@@ -180,7 +180,10 @@ export default {
     };
 
     const numberFormat = (value) => {
-      return new Intl.NumberFormat('ko-KR').format(value) + '원';
+      return new Intl.NumberFormat('ko-KR', {
+        minimumFractionDigits: 0, // 소수점 아래 최소 자릿수
+        maximumFractionDigits: 0  // 소수점 아래 최대 자릿수
+      }).format(value) + '원';
     };
 
     const checkGoalStatus = (goalRate) => {
@@ -245,7 +248,7 @@ export default {
     };
 
     const addPlan = (enrollId) => {
-      console.log("실천방안 추가:" +enrollId );
+      console.log("실천방안 추가:" + enrollId);
       router.push({ name: 'newPlan', params: { enrollId: enrollId } });
     };
 
@@ -352,8 +355,9 @@ export default {
   justify-content: space-between;
 }
 
-.goal-contents > .item {
-  flex: 1; /* 각 요소가 동일한 공간을 차지하도록 설정 */
+.goal-contents>.item {
+  flex: 1;
+  /* 각 요소가 동일한 공간을 차지하도록 설정 */
   display: flex;
   flex-direction: column;
 }
@@ -361,7 +365,8 @@ export default {
 /* 통계량 */
 .statistics {
   display: flex;
-  flex-grow: 1; /* 부모 컨테이너와 높이를 맞추기 위해 flex-grow를 사용 */
+  flex-grow: 1;
+  /* 부모 컨테이너와 높이를 맞추기 위해 flex-grow를 사용 */
   align-content: center;
 }
 
@@ -373,8 +378,10 @@ export default {
 .no-product {
   display: flex;
   flex-direction: column;
-  align-items: center; /* 가로 방향 중앙 정렬 */
-  justify-content: center; /* 세로 방향 중앙 정렬 */
+  align-items: center;
+  /* 가로 방향 중앙 정렬 */
+  justify-content: center;
+  /* 세로 방향 중앙 정렬 */
   background: white;
   padding: 20px;
   border-radius: 6px;
@@ -403,8 +410,10 @@ export default {
   margin-top: 12px;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* 세로 방향 중앙 정렬 */
-  flex-grow: 1; /* 부모 컨테이너와 높이를 맞추기 위해 flex-grow를 사용 */
+  justify-content: center;
+  /* 세로 방향 중앙 정렬 */
+  flex-grow: 1;
+  /* 부모 컨테이너와 높이를 맞추기 위해 flex-grow를 사용 */
 }
 
 .product-name {
@@ -550,12 +559,16 @@ p {
   margin-bottom: 4px;
 }
 
-.statistics > card {
-  display: flex;           /* Flexbox를 활성화합니다. */
-  flex-direction: column;  /* 아이템들을 세로로 정렬합니다. */
-  align-items: center;     /* 가로 방향에서 중앙 정렬을 적용합니다. */
-  justify-content: center; /* 세로 방향에서 중앙 정렬을 적용합니다. */
-  height: 100%;            /* 필요한 경우, 부모 요소로부터 높이를 100% 채웁니다. */
+.statistics>card {
+  display: flex;
+  /* Flexbox를 활성화합니다. */
+  flex-direction: column;
+  /* 아이템들을 세로로 정렬합니다. */
+  align-items: center;
+  /* 가로 방향에서 중앙 정렬을 적용합니다. */
+  justify-content: center;
+  /* 세로 방향에서 중앙 정렬을 적용합니다. */
+  height: 100%;
+  /* 필요한 경우, 부모 요소로부터 높이를 100% 채웁니다. */
 }
-
 </style>
