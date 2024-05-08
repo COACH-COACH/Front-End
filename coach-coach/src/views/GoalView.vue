@@ -1,8 +1,10 @@
 <template>
     <div class="goal">
-        <div class="container">
-        <AdvisorComponent/>
-        </div>
+        <div class="bg-color">
+            <div class="container">
+                <AdvisorComponent/>
+            </div>
+        </div> 
         <GoalComponent/>
     </div>
 </template>
@@ -18,3 +20,9 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+/* .bg-color{
+    background-color: #EAF5FD;
+} */
+</style>
