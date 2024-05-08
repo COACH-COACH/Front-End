@@ -126,12 +126,9 @@ export default {
             "Content-Type": "application/json"
           }
         }).then((response) => response.json());
-        console.log(typeof response.result);
-        console.log(response.result);
 
         if (response) {
           this.adminResponse = response.result;
-          console.log("adminResponse:", this.adminResponse);
         } else {
           console.error('데이터가 비어 있거나 접근할 수 없습니다.');
         }
@@ -155,21 +152,16 @@ export default {
           headers: { Authorization: `${token}` }
         });
 
-        console.log("chartData에 넣을 데이터 response값:", response);
-        console.log("response_basyh:", response.data.data.TOT_USE_AM);
-
         if (response.data && response.data.data.BAS_YH && response.data.data.TOT_USE_AM){
         this.chartData.BAS_YH = response.data.data.BAS_YH;
         this.chartData.TOT_USE_AM = response.data.data.TOT_USE_AM;
 
         // 직전분기 실제값 변수 정의
         this.lastActualValue = this.chartData.TOT_USE_AM[this.chartData.TOT_USE_AM.length-1];
-        console.log("lastActualValue", this.lastActualValue);
 
         // 그래프를 그리기 위해 예측값과 실제값 통합
         this.chartData.BAS_YH.push('nextq');
         this.chartData.TOT_USE_AM.push(this.adminResponse);
-        console.log("chartData", this.chartData);
 
         // 그래프 그리기
         // this.$nextTick(() => {
@@ -190,19 +182,44 @@ export default {
       return new Intl.NumberFormat('ko-KR').format(value) + '원';
     },
 
+    sortChartData() {
+      // 데이터와 라벨을 연결하기 위해 배열의 인덱스와 함께 객체 배열을 생성
+      let combined = this.chartData.BAS_YH.map((e, i) => ({ label: e, value: this.chartData.TOT_USE_AM[i] }));
+
+      // 라벨을 연도와 분기로 파싱하여 정렬
+      combined.sort((a, b) => {
+        let yearA = parseInt(a.label.slice(0, 4));
+        let yearB = parseInt(b.label.slice(0, 4));
+
+        // 분기 숫자 추출, 일치하는 것이 없다면 기본값으로 0을 사용
+        let quarterA = a.label.match(/q(\d)/i) ? parseInt(a.label.match(/q(\d)/i)[1]) : 0;
+        let quarterB = b.label.match(/q(\d)/i) ? parseInt(b.label.match(/q(\d)/i)[1]) : 0;
+
+        if (yearA !== yearB) {
+          return yearA - yearB;
+        } else {
+          return quarterA - quarterB;
+        }
+      });
+
+      // 정렬된 데이터로부터 새로운 라벨과 데이터 배열 생성
+      this.chartData.BAS_YH = combined.map(e => e.label);
+      this.chartData.TOT_USE_AM = combined.map(e => e.value);
+    },
+
     renderChart(){
       // const predictChartCanvas = this.predictChartCanvas;
       const predictChartCanvas = this.$refs.predictChart;
-      console.log(this.chartData.TOT_USE_AM);
       if (!predictChartCanvas) {
         // console.log(this);
         console.error('Canvas element not found!');
         return;
       }
+
+      // 데이터 정렬 호출
+      this.sortChartData();
+
       const ctx = predictChartCanvas.getContext('2d');
-      // if (this.chart){
-      //   this.chart.destroy();
-      // }
       this.chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -224,7 +241,6 @@ export default {
           }
         }
       });
-      console.log(this.chart.data);
     }
   } 
 };

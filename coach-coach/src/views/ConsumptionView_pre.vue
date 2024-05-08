@@ -172,10 +172,6 @@ export default {
       },
       chart: null,
 
-      // this.fetchLastTotUseAm().then(() => {
-      //   this.$nextTick(() => {
-      //     this.renderChart();}}),
-
       categoryMap: {
         FUNITR_AM: "가구",
         APPLNC_AM: "가전제품",
@@ -285,7 +281,6 @@ export default {
 
         if (response) {
           this.adminResponse = response.result;
-          console.log("adminResponse:", this.adminResponse);
         } else {
           console.error('데이터가 비어 있거나 접근할 수 없습니다.');
         }
@@ -311,16 +306,12 @@ export default {
           headers: { Authorization: `${token}` }
         });
         
-        console.log("fetchQuarterResponse:", response);
-        
         this.quarterComparison = response.data;
-        console.log("fetchQuarterData:", this.quarterComparison);
 
         if (!response.data || (Object.keys(response.data.increase).length === 0 && Object.keys(response.data.decrease).length === 0)) {
           this.increaseList = []; // 변동사항이 없을 때 리스트 초기화
           this.decreaseList = [];      
           this.quarterChangeMessage = "유의한 데이터 변동이 없습니다";
-          console.log(quarterChangeMessage);
         } else {
           this.increaseList = this.processCategoryChanges(response.data.increase, 'increase');
           this.decreaseList = this.processCategoryChanges(response.data.decrease, 'decrease');
@@ -388,26 +379,16 @@ export default {
           headers: { Authorization: `${token}` }
         });
 
-        console.log("chartData에 넣을 데이터 response값:", response);
-        console.log("response_basyh:", response.data.data.TOT_USE_AM);
-
         if (response.data && response.data.data.BAS_YH && response.data.data.TOT_USE_AM){
         this.chartData.BAS_YH = response.data.data.BAS_YH;
         this.chartData.TOT_USE_AM = response.data.data.TOT_USE_AM;
 
         // 직전분기 실제값 변수 정의
         this.lastActualValue = this.chartData.TOT_USE_AM[this.chartData.TOT_USE_AM.length-1];
-        console.log("lastActualValue", this.lastActualValue);
 
         // 그래프를 그리기 위해 예측값과 실제값 통합
         this.chartData.BAS_YH.push('nextq');
         this.chartData.TOT_USE_AM.push(this.adminResponse);
-        console.log("chartData", this.chartData);
-
-        // 그래프 그리기
-        // this.$nextTick(() => {
-        //     this.renderChart();
-        //   });
 
         } else {
           console.error('데이터가 비어있거나 예상 형식과 다릅니다', response.data);
