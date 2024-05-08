@@ -3,7 +3,7 @@
     <!-- <button @click="goalCompleteTest">폭죽 테스트</button> -->
     <div class="header-container">
       <div class="title">
-        <h1>안녕하세요, {{ goalData.fullName }}님<br />맞춤형 자산관리 서비스 코치코치입니다.</h1>
+        <h1>안녕하세요, {{ goalData.fullName }}님<br />맞춤형 자산관리 서비스 위비코치입니다.</h1>
       </div>
       <button @click="addGoal" class="add-goal-btn">목표 추가</button>
     </div>

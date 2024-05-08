@@ -2,7 +2,7 @@
   <div>
     <div class="text-center mb-4">
       <h3>안녕하세요, {{ userData.fullName }}님</h3>
-      <p>맞춤형 자산관리 서비스 코치코치입니다.</p>
+      <p>맞춤형 자산관리 서비스 위비코치입니다.</p>
     </div>
     
     <div class="container mt-5">
