@@ -38,7 +38,6 @@
       <div class="promotion-card">
         <!-- <img :src="promotion.imageUrl" :alt="promotion.altText"> -->
         <div class="promotion-content">
-          <h2>✨팀 COACH-COACH를 소개합니다✨</h2>
           <p></p>
         </div>
       </div>
