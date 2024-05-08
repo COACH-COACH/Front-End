@@ -24,13 +24,16 @@
                 </div>
                 <div class="blue-container2 half-width">
                     <div class="spend-category-card" v-if="formattedAdminResponse">
-                        <div v-if="formattedAdminResponse <= twentyPercentLess">
+                        <div v-if="formattedAdminResponse >= twentyPercentLess">
                             <h3>이대로 목표 달성까지 쭉쭉!</h3>
-                            <p>직전분기보다 예상 지출액이 20% 감소했어요</p>
+                            <p>직전분기보다 예상 지출액이<br/>20% 이상 감소할 것으로 예상돼요</p>
                         </div>
-                        <div v-else-if="formattedAdminResponse >= twentyPercentMore">
+                        <div v-else-if="formattedAdminResponse <= twentyPercentMore">
                             <h3>이대로라면 지출이 늘어날 거예요!</h3>
-                            <p>직전분기보다 예상 지출액이 20% 증가했어요</p>
+                            <p>직전분기보다 예상 지출액이<br/>20% 이상 증가할 것으로 예상돼요</p>
+                        </div>
+                        <div v-else>
+                            <p>예상 지출액이 지난 분기와 비슷해요.</p>
                         </div>
                     </div>
                 </div>    
@@ -46,6 +49,7 @@ import { mapGetters } from 'vuex';
 export default {
   computed: {
     ...mapGetters(['getToken']), // Vuex의 getToken getter를 컴포넌트 내에서 사용 가능하게 등록
+
     // 동적으로 대시보드 URL을 생성하는 계산된 속성
     formattedAdminResponse(){
       return Math.round(this.adminResponse * 1000);
@@ -54,6 +58,8 @@ export default {
 
   data(){
     return {
+      twentyPercentLess: 0,
+      twentyPercentMore: 0,
       loading: false, // 로딩 상태를 추적하는 데이터
       adminResponse: null,
       
@@ -67,22 +73,19 @@ export default {
     }
   },
   mounted() {
-    this.accessAdminPage(); // 페이지 로드 시 머신러닝 예측 자동 실행
     this.fetchELKDataUsingToken();
-    this.twentyPercentLess = this.formattedAdminResponse * 0.8;
-    this.twentyPercentMore = this.formattedAdminResponse * 1.2;
     this.accessAdminPage().then(()=>{
       this.fetchLastTotUseAm().then(()=> {
         this.$nextTick(() => {
           this.renderChart();
+        });
       });
-    });
     });
   },
 
   methods: {
     async fetchELKDataUsingToken() {
-      const url = process.env.VUE_APP_API_URL + '/advisor/getAdvice' + '/user/data';
+      const url = process.env.VUE_APP_API_URL + '/user/data';
       const token = this.getToken;
 
       try {
@@ -99,11 +102,6 @@ export default {
       } catch (error) {
         console.error('사용자 정보 가져오기 실패:', error);
       }
-    },
-    
-    async fetchData(){
-      await this.accessAdminPage();
-      await this.fetchLastTotUseAm();
     },
 
     async accessAdminPage() {
@@ -156,17 +154,23 @@ export default {
         this.chartData.BAS_YH = response.data.data.BAS_YH;
         this.chartData.TOT_USE_AM = response.data.data.TOT_USE_AM;
 
+        // 데이터 정렬 호출
+        this.sortChartData();
+
         // 직전분기 실제값 변수 정의
         this.lastActualValue = this.chartData.TOT_USE_AM[this.chartData.TOT_USE_AM.length-1];
+        console.log(this.lastActualValue);
+        console.log(this.adminResponse);
+
+        this.twentyPercentLess = this.lastActualValue * 0.8;
+        this.twentyPercentMore = this.lastActualValue * 1.2;
+        console.log(this.twentyPercentLess);
+        console.log(this.twentyPercentMore);
+        
 
         // 그래프를 그리기 위해 예측값과 실제값 통합
         this.chartData.BAS_YH.push('nextq');
         this.chartData.TOT_USE_AM.push(this.adminResponse);
-
-        // 그래프 그리기
-        // this.$nextTick(() => {
-        //     this.renderChart();
-        //   });
 
         } else {
           console.error('데이터가 비어있거나 예상 형식과 다릅니다', response.data);
@@ -215,9 +219,6 @@ export default {
         console.error('Canvas element not found!');
         return;
       }
-
-      // 데이터 정렬 호출
-      this.sortChartData();
 
       const ctx = predictChartCanvas.getContext('2d');
       this.chart = new Chart(ctx, {
