@@ -24,11 +24,11 @@
                 </div>
                 <div class="blue-container2 half-width">
                     <div class="spend-category-card" v-if="formattedAdminResponse">
-                        <div v-if="formattedAdminResponse >= twentyPercentLess">
+                        <div v-if="formattedAdminResponse < twentyPercentLess">
                             <h3>이대로 목표 달성까지 쭉쭉!</h3>
                             <p>직전분기보다 예상 지출액이<br/>20% 이상 감소할 것으로 예상돼요</p>
                         </div>
-                        <div v-else-if="formattedAdminResponse <= twentyPercentMore">
+                        <div v-else-if="formattedAdminResponse > twentyPercentMore">
                             <h3>이대로라면 지출이 늘어날 거예요!</h3>
                             <p>직전분기보다 예상 지출액이<br/>20% 이상 증가할 것으로 예상돼요</p>
                         </div>
@@ -53,7 +53,7 @@ export default {
     // 동적으로 대시보드 URL을 생성하는 계산된 속성
     formattedAdminResponse(){
       return Math.round(this.adminResponse * 1000);
-    },
+    }
   },
 
   data(){
@@ -159,14 +159,9 @@ export default {
 
         // 직전분기 실제값 변수 정의
         this.lastActualValue = this.chartData.TOT_USE_AM[this.chartData.TOT_USE_AM.length-1];
-        console.log(this.lastActualValue);
-        console.log(this.adminResponse);
 
-        this.twentyPercentLess = this.lastActualValue * 0.8;
-        this.twentyPercentMore = this.lastActualValue * 1.2;
-        console.log(this.twentyPercentLess);
-        console.log(this.twentyPercentMore);
-        
+        this.twentyPercentLess = (this.lastActualValue *1000) * 0.8;
+        this.twentyPercentMore = (this.lastActualValue*1000) * 1.2;      
 
         // 그래프를 그리기 위해 예측값과 실제값 통합
         this.chartData.BAS_YH.push('nextq');
