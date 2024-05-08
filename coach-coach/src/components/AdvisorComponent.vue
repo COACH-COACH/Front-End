@@ -131,16 +131,20 @@ section div {
   margin-bottom: 20px;
   line-height: 24px;
 }
-
+.bg-color {
+  background-color: #EAF5FD;
+}
 .from-me {
   position: relative;
   padding: 10px 20px;
   color: white;
-  background: #0B93F6;
+  background: #EAF5FD;;
   border-radius: 25px;
   align-items: center;
   width: 800px;
   margin-right: auto; /* 오른쪽 정렬을 위해 */
+  border-color: #616b96;
+  border: solid;
 }
 
 .from-me:before {
@@ -153,6 +157,8 @@ section div {
   border-right: 20px solid #0B93F6;
   border-bottom-left-radius: 16px 14px;
   -webkit-transform: translate(0, -2px);
+  border-color: #616b96;
+  border: 1px;
 }
 .from-me:after {
   content: "";
@@ -162,12 +168,16 @@ section div {
   right: -56px;
   width: 26px;
   height: 20px;
-  background: white;
+  background: #FFFFFF;
+  color: #EAF5FD;
   border-bottom-left-radius: 10px;
   -webkit-transform: translate(-30px, -2px);
+  border-color: #616b96;
+  border: 1px;
 }
 .message-bubble {
   min-width: 200px; /* Prevent text from shrinking too small */
+  color: #616b96;
 }
 .side-image {
   width: 150px; /* Fixed size */
@@ -177,6 +187,6 @@ section div {
 .loading-spinner {
   text-align: center;
   font-size: 20px;
-  color: #FFF;
+  color: #333333;
 }
 </style>
